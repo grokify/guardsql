@@ -1,0 +1,94 @@
+# Example fail-closed policy profile for customer-authored analytics queries.
+# This file documents intended controls. Go callers should build equivalent
+# grokifyql.Policy values, usually starting from SafeAnalyticsPolicy(schema).
+
+operations:
+  allow:
+    - read
+
+entities:
+  allow:
+    - roadmap_items
+
+structure:
+  select_star: deny
+  ctes: deny
+  nested_sources: deny
+  joins:
+    allow:
+      - inner
+      - left
+    max: 3
+  subquery_depth:
+    max: 0
+  select_items:
+    max: 50
+  order_fields:
+    max: 5
+  group_fields:
+    max: 5
+  expression:
+    max_depth: 8
+    max_nodes: 80
+    max_in_values: 100
+  limit:
+    required: true
+    max: 1000
+
+functions:
+  aggregate:
+    allow:
+      - COUNT
+      - SUM
+      - AVG
+      - MIN
+      - MAX
+  scalar:
+    default: deny
+
+fields:
+  roadmap_items:
+    id:
+      select: true
+      filter: true
+      sort: true
+      group: true
+      aggregate: [COUNT]
+      join: false
+    name:
+      select: true
+      filter: true
+      sort: true
+      group: true
+      aggregate: [COUNT]
+      join: false
+    status:
+      select: true
+      filter: true
+      sort: true
+      group: true
+      aggregate: [COUNT]
+      join: false
+    score:
+      select: true
+      filter: true
+      sort: true
+      group: true
+      aggregate: [COUNT, SUM, AVG, MIN, MAX]
+      join: false
+    internal:
+      select: false
+      filter: false
+      sort: false
+      group: false
+      aggregate: []
+      join: false
+
+runtime_requirements:
+  parameterized_rendering: required
+  tenant_scope: trusted_context_only
+  database_role: read_only_least_privilege
+  row_level_security: recommended
+  statement_timeout: required
+  rate_limits: required
+  audit_logging: required
