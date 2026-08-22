@@ -257,12 +257,18 @@ func (p *parser) parseJoinType() (JoinType, bool, error) {
 }
 
 func (p *parser) parseOptionalAlias() (string, error) {
-	p.matchKeyword("AS")
+	hasAS := p.matchKeyword("AS")
 	tok := p.peek()
 	if tok.kind != tokIdent {
+		if hasAS {
+			return "", p.err("expected alias after AS")
+		}
 		return "", nil
 	}
 	if isClauseKeyword(tok.text) {
+		if hasAS {
+			return "", p.err("expected alias after AS")
+		}
 		return "", nil
 	}
 	p.pos++

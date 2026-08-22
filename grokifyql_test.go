@@ -287,6 +287,19 @@ func TestParseJoinTypesAndAliases(t *testing.T) {
 	}
 }
 
+func TestParseRejectsASWithoutAlias(t *testing.T) {
+	cases := []string{
+		`SELECT id FROM roadmap_items AS WHERE status = "planned"`,
+		`SELECT id FROM (SELECT id FROM roadmap_items LIMIT 5) AS LIMIT 5`,
+		`SELECT a.id FROM roadmap_items AS a JOIN roadmap_items AS ON a.id = b.id LIMIT 5`,
+	}
+	for _, input := range cases {
+		if _, err := Parse(input); err == nil {
+			t.Fatalf("%q parsed successfully, want error", input)
+		}
+	}
+}
+
 func TestValidateSelfJoinRequiresAliases(t *testing.T) {
 	q, err := Parse(`SELECT id FROM roadmap_items JOIN roadmap_items AS child ON id = child.id LIMIT 5`)
 	if err != nil {
