@@ -1,5 +1,6 @@
 ts/node_modules/
 IDEATION_CHAT*.md
+site/
 coverage.out
 *.test
 .DS_Store
