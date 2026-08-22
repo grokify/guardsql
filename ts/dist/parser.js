@@ -1,0 +1,322 @@
+import { GrokifyQLParseError } from './errors.js';
+import { lex } from './lexer.js';
+export function parse(input) {
+    return new Parser(lex(input)).parseQuery();
+}
+class Parser {
+    constructor(tokens) {
+        this.tokens = tokens;
+        this.pos = 0;
+    }
+    parseQuery() {
+        const ctes = this.matchKeyword('WITH') ? this.parseCTEs() : [];
+        const select = this.matchKeyword('SELECT') ? this.parseSelectList() : [{ field: '', star: true }];
+        this.expectKeyword('FROM');
+        const source = this.parseSource();
+        const joins = [];
+        while (this.nextStartsJoin())
+            joins.push(this.parseJoin());
+        const query = {
+            operation: 'read',
+            select,
+            from: source.entity,
+            fromAlias: source.alias,
+            fromQuery: source.query,
+            joins,
+            groupBy: [],
+            orderBy: [],
+            ctes,
+        };
+        if (this.matchKeyword('WHERE'))
+            query.where = this.parseExpr();
+        if (this.matchKeyword('GROUP')) {
+            this.expectKeyword('BY');
+            query.groupBy = this.parseIdentifierList();
+        }
+        if (this.matchKeyword('HAVING'))
+            query.having = this.parseExpr();
+        if (this.matchKeyword('PRIORITIZE')) {
+            this.expectKeyword('BY');
+            query.prioritizeBy = this.parseIdentifier();
+        }
+        if (this.matchKeyword('ORDER')) {
+            this.expectKeyword('BY');
+            query.orderBy = this.parseOrderList();
+        }
+        if (this.matchKeyword('LIMIT')) {
+            const tok = this.consume();
+            if (tok.type !== 'number' || !/^\d+$/.test(tok.text)) {
+                throw new GrokifyQLParseError('LIMIT must be an integer', tok.offset);
+            }
+            query.limit = Number(tok.text);
+        }
+        this.expectEOFOrCloseParen();
+        return query;
+    }
+    parseCTEs() {
+        const ctes = [];
+        do {
+            const name = this.parseIdentifier();
+            this.expectKeyword('AS');
+            this.expectPunct('(');
+            const query = this.parseQuery();
+            this.expectPunct(')');
+            ctes.push({ name, query });
+        } while (this.matchPunct(','));
+        return ctes;
+    }
+    parseSelectList() {
+        const items = [];
+        do {
+            if (this.matchPunct('*')) {
+                items.push({ field: '', star: true });
+                continue;
+            }
+            const name = this.parseIdentifier();
+            const maybeAgg = aggregateFunction(name);
+            let item;
+            if (maybeAgg && this.matchPunct('(')) {
+                if (this.matchPunct('*')) {
+                    item = { field: '', aggregate: { func: maybeAgg, field: '', star: true } };
+                }
+                else {
+                    const field = this.parseIdentifier();
+                    item = { field, aggregate: { func: maybeAgg, field } };
+                }
+                this.expectPunct(')');
+            }
+            else {
+                item = { field: name };
+            }
+            if (this.matchKeyword('AS'))
+                item.alias = this.parseIdentifier();
+            else if (this.peek().type === 'identifier' && !reserved(this.peek().text))
+                item.alias = this.parseIdentifier();
+            items.push(item);
+        } while (this.matchPunct(','));
+        return items;
+    }
+    parseSource() {
+        let entity = '';
+        let query;
+        if (this.matchPunct('(')) {
+            query = this.parseQuery();
+            this.expectPunct(')');
+        }
+        else {
+            entity = this.parseIdentifier();
+        }
+        let alias;
+        if (this.matchKeyword('AS'))
+            alias = this.parseIdentifier();
+        else if (this.peek().type === 'identifier' && !reserved(this.peek().text))
+            alias = this.parseIdentifier();
+        return { entity, alias, query };
+    }
+    parseJoin() {
+        let type = 'inner';
+        if (this.matchKeyword('JOIN')) {
+            type = 'inner';
+        }
+        else if (this.matchKeyword('INNER')) {
+            this.expectKeyword('JOIN');
+            type = 'inner';
+        }
+        else if (this.matchKeyword('LEFT')) {
+            this.matchKeyword('OUTER');
+            this.expectKeyword('JOIN');
+            type = 'left';
+        }
+        else if (this.matchKeyword('RIGHT')) {
+            this.matchKeyword('OUTER');
+            this.expectKeyword('JOIN');
+            type = 'right';
+        }
+        else if (this.matchKeyword('FULL')) {
+            this.matchKeyword('OUTER');
+            this.expectKeyword('JOIN');
+            type = 'full';
+        }
+        else {
+            this.expectKeyword('CROSS');
+            this.expectKeyword('JOIN');
+            type = 'cross';
+        }
+        const source = this.parseSource();
+        const join = { type, entity: source.entity, alias: source.alias, query: source.query };
+        if (type !== 'cross' || this.matchKeyword('ON')) {
+            if (!join.on)
+                join.on = this.parseExpr();
+        }
+        return join;
+    }
+    parseExpr() {
+        return this.parseOr();
+    }
+    parseOr() {
+        let left = this.parseAnd();
+        while (this.matchKeyword('OR'))
+            left = { kind: 'logical', op: 'OR', left, right: this.parseAnd() };
+        return left;
+    }
+    parseAnd() {
+        let left = this.parseNot();
+        while (this.matchKeyword('AND'))
+            left = { kind: 'logical', op: 'AND', left, right: this.parseNot() };
+        return left;
+    }
+    parseNot() {
+        if (this.matchKeyword('NOT'))
+            return { kind: 'not', expr: this.parsePrimaryExpr() };
+        return this.parsePrimaryExpr();
+    }
+    parsePrimaryExpr() {
+        if (this.matchPunct('(')) {
+            const expr = this.parseExpr();
+            this.expectPunct(')');
+            return expr;
+        }
+        const field = this.parseIdentifier();
+        if (this.matchKeyword('IS')) {
+            const not = this.matchKeyword('NOT');
+            this.expectKeyword('NULL');
+            return { kind: 'compare', field, op: not ? 'IS_NOT_NULL' : 'IS_NULL' };
+        }
+        if (this.matchKeyword('IN')) {
+            this.expectPunct('(');
+            const values = [];
+            if (!this.checkPunct(')')) {
+                do
+                    values.push(this.parseValue());
+                while (this.matchPunct(','));
+            }
+            this.expectPunct(')');
+            return { kind: 'compare', field, op: 'IN', values };
+        }
+        let op;
+        if (this.matchKeyword('CONTAINS'))
+            op = 'CONTAINS';
+        else {
+            const tok = this.consume();
+            if (tok.type !== 'operator')
+                throw new GrokifyQLParseError('expected comparison operator', tok.offset);
+            if (!['=', '!=', '<', '<=', '>', '>='].includes(tok.text)) {
+                throw new GrokifyQLParseError('invalid comparison operator', tok.offset);
+            }
+            op = tok.text;
+        }
+        return { kind: 'compare', field, op, value: this.parseValue() };
+    }
+    parseValue() {
+        const tok = this.consume();
+        if (tok.type === 'string')
+            return tok.text;
+        if (tok.type === 'number')
+            return Number(tok.text);
+        if (tok.type === 'identifier') {
+            if (eq(tok.text, 'TRUE'))
+                return true;
+            if (eq(tok.text, 'FALSE'))
+                return false;
+            if (eq(tok.text, 'NULL'))
+                return null;
+        }
+        throw new GrokifyQLParseError('expected literal value', tok.offset);
+    }
+    parseIdentifierList() {
+        const out = [];
+        do
+            out.push(this.parseIdentifier());
+        while (this.matchPunct(','));
+        return out;
+    }
+    parseOrderList() {
+        const out = [];
+        do {
+            const field = this.parseIdentifier();
+            const desc = this.matchKeyword('DESC');
+            if (!desc)
+                this.matchKeyword('ASC');
+            out.push({ field, desc });
+        } while (this.matchPunct(','));
+        return out;
+    }
+    parseIdentifier() {
+        const tok = this.consume();
+        if (tok.type !== 'identifier')
+            throw new GrokifyQLParseError('expected identifier', tok.offset);
+        return tok.text;
+    }
+    nextStartsJoin() {
+        return ['JOIN', 'INNER', 'LEFT', 'RIGHT', 'FULL', 'CROSS'].some((kw) => this.checkKeyword(kw));
+    }
+    expectEOFOrCloseParen() {
+        if (this.peek().type === 'eof' || this.checkPunct(')'))
+            return;
+        throw new GrokifyQLParseError('unexpected token', this.peek().offset);
+    }
+    consume() {
+        return this.tokens[this.pos++];
+    }
+    peek() {
+        return this.tokens[this.pos];
+    }
+    matchKeyword(keyword) {
+        if (!this.checkKeyword(keyword))
+            return false;
+        this.pos++;
+        return true;
+    }
+    checkKeyword(keyword) {
+        const tok = this.peek();
+        return tok.type === 'identifier' && eq(tok.text, keyword);
+    }
+    expectKeyword(keyword) {
+        if (!this.matchKeyword(keyword))
+            throw new GrokifyQLParseError(`expected ${keyword}`, this.peek().offset);
+    }
+    matchPunct(text) {
+        if (!this.checkPunct(text))
+            return false;
+        this.pos++;
+        return true;
+    }
+    checkPunct(text) {
+        const tok = this.peek();
+        return tok.type === 'punct' && tok.text === text;
+    }
+    expectPunct(text) {
+        if (!this.matchPunct(text))
+            throw new GrokifyQLParseError(`expected ${text}`, this.peek().offset);
+    }
+}
+function aggregateFunction(value) {
+    const upper = value.toUpperCase();
+    if (upper === 'COUNT' || upper === 'SUM' || upper === 'AVG' || upper === 'MIN' || upper === 'MAX') {
+        return upper;
+    }
+    return undefined;
+}
+function reserved(value) {
+    return [
+        'JOIN',
+        'INNER',
+        'LEFT',
+        'RIGHT',
+        'FULL',
+        'OUTER',
+        'CROSS',
+        'FROM',
+        'WHERE',
+        'GROUP',
+        'HAVING',
+        'PRIORITIZE',
+        'ORDER',
+        'LIMIT',
+        'ON',
+    ].some((kw) => eq(value, kw));
+}
+function eq(a, b) {
+    return a.toUpperCase() === b.toUpperCase();
+}
+//# sourceMappingURL=parser.js.map
