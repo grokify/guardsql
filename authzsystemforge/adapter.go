@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/grokify/grokifyql"
-	gqlauthz "github.com/grokify/grokifyql/authz"
+	"github.com/grokify/guardsql"
+	gqlauthz "github.com/grokify/guardsql/authz"
 	"github.com/grokify/systemforge/authz"
 )
 
-// ResourceBuilder maps GrokifyQL entities and fields to SystemForge resources.
+// ResourceBuilder maps GuardSQL entities and fields to SystemForge resources.
 // Applications can use these names directly in SpiceDB schemas or adapt them to
 // product-specific resource types.
 type ResourceBuilder interface {
@@ -45,22 +45,22 @@ type DefaultResourceBuilder struct{}
 
 // EntityResource implements ResourceBuilder.
 func (DefaultResourceBuilder) EntityResource(entity string) authz.Resource {
-	return authz.NewResource(authz.ResourceType("grokifyql_entity")).WithAttr("entity", strings.ToLower(entity))
+	return authz.NewResource(authz.ResourceType("guardsql_entity")).WithAttr("entity", strings.ToLower(entity))
 }
 
 // FieldResource implements ResourceBuilder.
 func (DefaultResourceBuilder) FieldResource(entity, field string) authz.Resource {
-	return authz.NewResource(authz.ResourceType("grokifyql_field")).
+	return authz.NewResource(authz.ResourceType("guardsql_field")).
 		WithAttr("entity", strings.ToLower(entity)).
 		WithAttr("field", strings.ToLower(field))
 }
 
 // PolicyBuilder checks SystemForge authorization for schema entities/fields and
-// compiles the result into a GrokifyQL policy.
+// compiles the result into a GuardSQL policy.
 type PolicyBuilder struct {
 	Authorizer      authz.Authorizer
 	Principal       authz.Principal
-	Schema          grokifyql.Schema
+	Schema          guardsql.Schema
 	ResourceBuilder ResourceBuilder
 	RequireLimit    bool
 	MaxLimit        int
@@ -70,17 +70,17 @@ type PolicyBuilder struct {
 	AllowStar       bool
 }
 
-// Build returns a read-only GrokifyQL policy derived from SystemForge authz.
-func (b PolicyBuilder) Build(ctx context.Context) (grokifyql.Policy, error) {
+// Build returns a read-only GuardSQL policy derived from SystemForge authz.
+func (b PolicyBuilder) Build(ctx context.Context) (guardsql.Policy, error) {
 	if b.Authorizer == nil {
-		return grokifyql.Policy{}, fmt.Errorf("authorizer is required")
+		return guardsql.Policy{}, fmt.Errorf("authorizer is required")
 	}
 	builder := b.ResourceBuilder
 	if builder == nil {
 		builder = DefaultResourceBuilder{}
 	}
 	decision := gqlauthz.Decision{
-		Fields:       map[string]map[string]grokifyql.FieldPolicy{},
+		Fields:       map[string]map[string]guardsql.FieldPolicy{},
 		RequireLimit: b.RequireLimit,
 		MaxLimit:     b.MaxLimit,
 		MaxDepth:     b.MaxDepth,
@@ -92,29 +92,29 @@ func (b PolicyBuilder) Build(ctx context.Context) (grokifyql.Policy, error) {
 	for entityName, entity := range schema.Entities {
 		canReadEntity, err := b.Authorizer.Can(ctx, b.Principal, authz.ActionRead, builder.EntityResource(entityName))
 		if err != nil {
-			return grokifyql.Policy{}, err
+			return guardsql.Policy{}, err
 		}
 		if !canReadEntity {
 			continue
 		}
 		decision.AllowedEntities = append(decision.AllowedEntities, entityName)
-		fieldPolicies := map[string]grokifyql.FieldPolicy{}
+		fieldPolicies := map[string]guardsql.FieldPolicy{}
 		for fieldName := range entity.Fields {
 			fieldResource := builder.FieldResource(entityName, fieldName)
 			selectable, err := b.Authorizer.Can(ctx, b.Principal, authz.ActionRead, fieldResource)
 			if err != nil {
-				return grokifyql.Policy{}, err
+				return guardsql.Policy{}, err
 			}
 			filterable, err := b.Authorizer.Can(ctx, b.Principal, authz.ActionList, fieldResource)
 			if err != nil {
-				return grokifyql.Policy{}, err
+				return guardsql.Policy{}, err
 			}
 			sortable, err := b.Authorizer.Can(ctx, b.Principal, authz.Action("sort"), fieldResource)
 			if err != nil {
-				return grokifyql.Policy{}, err
+				return guardsql.Policy{}, err
 			}
 			if selectable || filterable || sortable {
-				fieldPolicies[fieldName] = grokifyql.FieldPolicy{
+				fieldPolicies[fieldName] = guardsql.FieldPolicy{
 					Selectable: selectable,
 					Filterable: filterable,
 					Sortable:   sortable,

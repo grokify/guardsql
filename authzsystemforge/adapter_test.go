@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/grokify/grokifyql"
+	"github.com/grokify/guardsql"
 	"github.com/grokify/systemforge/authz"
 )
 
@@ -50,24 +50,24 @@ func (m mockAuthorizer) Filter(ctx context.Context, principal authz.Principal, a
 	return out, nil
 }
 
-func TestPolicyBuilderBuildsGrokifyQLPolicy(t *testing.T) {
+func TestPolicyBuilderBuildsGuardSQLPolicy(t *testing.T) {
 	builder := PolicyBuilder{
 		Authorizer: mockAuthorizer{allowed: map[string]bool{
-			"grokifyql_entity:read:items:":      true,
-			"grokifyql_field:read:items:name":   true,
-			"grokifyql_field:list:items:status": true,
-			"grokifyql_field:sort:items:score":  true,
+			"guardsql_entity:read:items:":      true,
+			"guardsql_field:read:items:name":   true,
+			"guardsql_field:list:items:status": true,
+			"guardsql_field:sort:items:score":  true,
 		}},
-		Schema: grokifyql.Schema{Entities: map[string]grokifyql.Entity{
+		Schema: guardsql.Schema{Entities: map[string]guardsql.Entity{
 			"items": {
-				Fields: map[string]grokifyql.Field{
-					"name":   {Type: grokifyql.FieldString},
-					"status": {Type: grokifyql.FieldString},
-					"score":  {Type: grokifyql.FieldNumber},
+				Fields: map[string]guardsql.Field{
+					"name":   {Type: guardsql.FieldString},
+					"status": {Type: guardsql.FieldString},
+					"score":  {Type: guardsql.FieldNumber},
 				},
 			},
 			"hidden": {
-				Fields: map[string]grokifyql.Field{"secret": {Type: grokifyql.FieldString}},
+				Fields: map[string]guardsql.Field{"secret": {Type: guardsql.FieldString}},
 			},
 		}},
 		RequireLimit: true,

@@ -1,6 +1,6 @@
 # Query Language
 
-GrokifyQL is SQL-like, but it is not SQL. It parses to a purpose-built AST that
+GuardSQL is SQL-like, but it is not SQL. It parses to a purpose-built AST that
 applications validate and compile into backend-specific execution plans.
 
 ## Basic Query
@@ -102,7 +102,7 @@ Self joins require aliases on both sources. Duplicate aliases are rejected.
 
 ## CTEs and Nested Sources
 
-GrokifyQL can represent CTEs and nested sources in the AST:
+GuardSQL can represent CTEs and nested sources in the AST:
 
 ```sql
 WITH active AS (
@@ -126,8 +126,8 @@ they should be executed by backend-specific compilers.
 
 ## Formatting
 
-Use `grokifyql.Format` or `grokifyqlfmt` to normalize user-authored query text.
-The formatter parses the query first, then emits canonical GrokifyQL from the
+Use `guardsql.Format` or `guardsqlfmt` to normalize user-authored query text.
+The formatter parses the query first, then emits canonical GuardSQL from the
 AST.
 
 Multiline output:
@@ -149,9 +149,9 @@ SELECT workspace_ref, name, custom.product FROM initiatives WHERE provider = "ah
 CLI examples:
 
 ```bash
-grokifyqlfmt query.gql
-grokifyqlfmt --style=singleline query.gql
-grokifyqlfmt --highlight=ansi query.gql
+guardsqlfmt query.gql
+guardsqlfmt --style=singleline query.gql
+guardsqlfmt --highlight=ansi query.gql
 ```
 
 The Go and TypeScript APIs also support optional ANSI syntax highlighting for

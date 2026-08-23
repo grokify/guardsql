@@ -1,13 +1,13 @@
 package authz
 
-import "github.com/grokify/grokifyql"
+import "github.com/grokify/guardsql"
 
-// Decision is an authorization result that can be compiled into a GrokifyQL
+// Decision is an authorization result that can be compiled into a GuardSQL
 // AST policy. External engines such as SpiceDB should populate this shape from
 // trusted application context, not from user-authored query text.
 type Decision struct {
 	AllowedEntities []string
-	Fields          map[string]map[string]grokifyql.FieldPolicy
+	Fields          map[string]map[string]guardsql.FieldPolicy
 	RequireLimit    bool
 	MaxLimit        int
 	MaxDepth        int
@@ -16,11 +16,11 @@ type Decision struct {
 	AllowStar       bool
 }
 
-// PolicyFromDecision converts an authorization decision into a GrokifyQL
+// PolicyFromDecision converts an authorization decision into a GuardSQL
 // structural policy. Query endpoints should normally remain read-only.
-func PolicyFromDecision(decision Decision) grokifyql.Policy {
-	return grokifyql.Policy{
-		AllowedOps:      []grokifyql.Operation{grokifyql.OperationRead},
+func PolicyFromDecision(decision Decision) guardsql.Policy {
+	return guardsql.Policy{
+		AllowedOps:      []guardsql.Operation{guardsql.OperationRead},
 		AllowedEntities: decision.AllowedEntities,
 		Fields:          decision.Fields,
 		AllowStar:       decision.AllowStar,

@@ -1,4 +1,4 @@
-# GrokifyQL
+# GuardSQL
 
 [![Go CI][go-ci-svg]][go-ci-url]
 [![Go Lint][go-lint-svg]][go-lint-url]
@@ -7,31 +7,31 @@
 [![Visualization][viz-svg]][viz-url]
 [![License][license-svg]][license-url]
 
- [go-ci-svg]: https://github.com/grokify/grokifyql/actions/workflows/go-ci.yaml/badge.svg?branch=main
- [go-ci-url]: https://github.com/grokify/grokifyql/actions/workflows/go-ci.yaml
- [go-lint-svg]: https://github.com/grokify/grokifyql/actions/workflows/go-lint.yaml/badge.svg?branch=main
- [go-lint-url]: https://github.com/grokify/grokifyql/actions/workflows/go-lint.yaml
- [go-sast-svg]: https://github.com/grokify/grokifyql/actions/workflows/go-sast-codeql.yaml/badge.svg?branch=main
- [go-sast-url]: https://github.com/grokify/grokifyql/actions/workflows/go-sast-codeql.yaml
- [docs-godoc-svg]: https://pkg.go.dev/badge/github.com/grokify/grokifyql
- [docs-godoc-url]: https://pkg.go.dev/github.com/grokify/grokifyql
+ [go-ci-svg]: https://github.com/grokify/guardsql/actions/workflows/go-ci.yaml/badge.svg?branch=main
+ [go-ci-url]: https://github.com/grokify/guardsql/actions/workflows/go-ci.yaml
+ [go-lint-svg]: https://github.com/grokify/guardsql/actions/workflows/go-lint.yaml/badge.svg?branch=main
+ [go-lint-url]: https://github.com/grokify/guardsql/actions/workflows/go-lint.yaml
+ [go-sast-svg]: https://github.com/grokify/guardsql/actions/workflows/go-sast-codeql.yaml/badge.svg?branch=main
+ [go-sast-url]: https://github.com/grokify/guardsql/actions/workflows/go-sast-codeql.yaml
+ [docs-godoc-svg]: https://pkg.go.dev/badge/github.com/grokify/guardsql
+ [docs-godoc-url]: https://pkg.go.dev/github.com/grokify/guardsql
  [docs-mkdoc-svg]: https://img.shields.io/badge/Go-dev%20guide-blue.svg
- [docs-mkdoc-url]: https://grokify.github.io/grokifyql
+ [docs-mkdoc-url]: https://grokify.github.io/guardsql
  [viz-svg]: https://img.shields.io/badge/visualizaton-Go-blue.svg
- [viz-url]: https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=grokify%2Fgrokifyql
- [loc-svg]: https://tokei.rs/b1/github/grokify/grokifyql
- [repo-url]: https://github.com/grokify/grokifyql
+ [viz-url]: https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=grokify%2Fguardsql
+ [loc-svg]: https://tokei.rs/b1/github/grokify/guardsql
+ [repo-url]: https://github.com/grokify/guardsql
  [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
- [license-url]: https://github.com/grokify/grokifyql/blob/main/LICENSE
+ [license-url]: https://github.com/grokify/guardsql/blob/main/LICENSE
 
-GrokifyQL is a small, application-neutral query language for Grokify analytics services. It is intended to provide a Jira Query Language style interface for SaaS reporting without passing customer-authored SQL directly to databases.
+GuardSQL is a small, application-neutral query language for Grokify analytics services. It is intended to provide a Jira Query Language style interface for SaaS reporting without passing customer-authored SQL directly to databases.
 
-This repository is the Go engine for GrokifyQL: parser, AST, schema validation,
+This repository is the Go engine for GuardSQL: parser, AST, schema validation,
 policy checks, lightweight authorization adapters, and backend compiler
 contracts. Runtime integrations for other language stacks should live in
 separate repositories or modules. A Hibernate integration, for example, should
-belong in a Java-focused project such as `github.com/grokify/grokifyql-java` or
-`github.com/grokify/grokifyql-hibernate`, not in this root Go module.
+belong in a Java-focused project such as `github.com/grokify/guardsql-java` or
+`github.com/grokify/guardsql-hibernate`, not in this root Go module.
 
 The core contract is a parser that converts user-authored text into Go structs. Applications should pass the parsed AST through schema validation, static lint policy, and backend-specific compilers. The original text should not be executed directly.
 
@@ -74,33 +74,33 @@ Future parsers may support create, update, or delete operations. Those operation
 
 ## Formatting
 
-GrokifyQL includes a dependency-free formatter for canonical query display,
+GuardSQL includes a dependency-free formatter for canonical query display,
 editor cleanup, logging, reviews, and tests.
 
 ```go
-formatted, err := grokifyql.Format(input, grokifyql.DefaultFormatOptions())
+formatted, err := guardsql.Format(input, guardsql.DefaultFormatOptions())
 ```
 
 The formatter supports multiline and single-line output:
 
 ```go
-singleLine, err := grokifyql.Format(input, grokifyql.FormatOptions{
-    Style: grokifyql.FormatSingleLine,
+singleLine, err := guardsql.Format(input, guardsql.FormatOptions{
+    Style: guardsql.FormatSingleLine,
 })
 ```
 
-The `grokifyqlfmt` command reads a file or stdin:
+The `guardsqlfmt` command reads a file or stdin:
 
 ```bash
-go run ./cmd/grokifyqlfmt query.gql
-echo 'select id,name from items limit 10' | go run ./cmd/grokifyqlfmt --style=singleline
-echo 'select id from items' | go run ./cmd/grokifyqlfmt --highlight=ansi
+go run ./cmd/guardsqlfmt query.gql
+echo 'select id,name from items limit 10' | go run ./cmd/guardsqlfmt --style=singleline
+echo 'select id from items' | go run ./cmd/guardsqlfmt --highlight=ansi
 ```
 
 The TypeScript package exports matching browser-side helpers:
 
 ```ts
-import { format, highlightANSI } from '@grokify/grokifyql'
+import { format, highlightANSI } from '@grokify/guardsql'
 
 format('select id,name from items limit 10')
 ```
@@ -120,9 +120,9 @@ Hosted applications should process customer queries in this order:
 For analytics/reporting endpoints, configure linting with read-only operation policy:
 
 ```go
-_, issues := grokifyql.Lint(input, grokifyql.LintConfig{
+_, issues := guardsql.Lint(input, guardsql.LintConfig{
 	Schema:     schema,
-	AllowedOps: []grokifyql.Operation{grokifyql.OperationRead},
+	AllowedOps: []guardsql.Operation{guardsql.OperationRead},
 	MaxDepth:   8,
 	MaxNodes:   64,
 	MaxInValues: 100,
@@ -134,14 +134,14 @@ New code should prefer parsing once, validating, analyzing requirements, and
 applying both structural and resolved policy checks:
 
 ```go
-q, err := grokifyql.Parse(input)
+q, err := guardsql.Parse(input)
 if err != nil {
     return err
 }
 
-issues := grokifyql.CheckPolicy(q, grokifyql.Policy{
-    AllowedOps: []grokifyql.Operation{grokifyql.OperationRead},
-    Fields: map[string]map[string]grokifyql.FieldPolicy{
+issues := guardsql.CheckPolicy(q, guardsql.Policy{
+    AllowedOps: []guardsql.Operation{guardsql.OperationRead},
+    Fields: map[string]map[string]guardsql.FieldPolicy{
         "roadmap_items": {
             "name":  {Selectable: true, Filterable: true, Sortable: true},
             "score": {Selectable: true, Filterable: true, Sortable: true},
@@ -155,7 +155,7 @@ if len(issues) > 0 {
     return fmt.Errorf("query not allowed: %s", issues[0].Message)
 }
 
-analysis, err := grokifyql.Analyze(q, schema)
+analysis, err := guardsql.Analyze(q, schema)
 if err != nil {
     return err
 }
@@ -163,15 +163,15 @@ if err != nil {
 requirements := analysis.Requirements()
 _ = requirements
 
-policy := grokifyql.SafeAnalyticsPolicy(schema)
-if issues := grokifyql.CheckAnalysisPolicy(analysis, policy); len(issues) > 0 {
+policy := guardsql.SafeAnalyticsPolicy(schema)
+if issues := guardsql.CheckAnalysisPolicy(analysis, policy); len(issues) > 0 {
     return fmt.Errorf("query requirements not allowed: %s", issues[0].Message)
 }
 ```
 
 ## Security Model
 
-GrokifyQL should not be executed as SQL. Applications parse it into an AST, validate that AST against an allowlisted schema, then compile it into backend-specific parameterized queries, Ent predicates, API filters, or in-memory filters. Tenant scope and authorization should be injected by the hosting service, not trusted from the user query.
+GuardSQL should not be executed as SQL. Applications parse it into an AST, validate that AST against an allowlisted schema, then compile it into backend-specific parameterized queries, Ent predicates, API filters, or in-memory filters. Tenant scope and authorization should be injected by the hosting service, not trusted from the user query.
 
 Input that does not parse is a normal syntax error, not an injection. Injection resistance comes from never executing the original string as SQL and from only compiling validated AST nodes to parameterized backend calls.
 
@@ -194,23 +194,23 @@ and AST checks, but it does not import Cedar, Rego, SpiceDB, Casbin, or other
 authorization engines.
 
 External authorization systems should make decisions from trusted application
-context and compile those decisions into `grokifyql.Policy`. The lightweight
-`github.com/grokify/grokifyql/authz` package provides a `Decision` helper for
+context and compile those decisions into `guardsql.Policy`. The lightweight
+`github.com/grokify/guardsql/authz` package provides a `Decision` helper for
 that conversion.
 
 For SystemForge and SpiceDB integrations, use the optional nested module:
 
 ```bash
-go get github.com/grokify/grokifyql/authzsystemforge
+go get github.com/grokify/guardsql/authzsystemforge
 ```
 
 `authzsystemforge.PolicyBuilder` accepts a SystemForge `authz.Authorizer`, a
-principal, a GrokifyQL schema, and an optional resource mapper. It checks
+principal, a GuardSQL schema, and an optional resource mapper. It checks
 entities and fields through SystemForge, then produces a read-only
-`grokifyql.Policy`.
+`guardsql.Policy`.
 
 Production SpiceDB deployments should provide a custom resource mapper so
-GrokifyQL entities and fields map to concrete product resources such as
+GuardSQL entities and fields map to concrete product resources such as
 `analytics_dataset:<id>` and `analytics_field:<id>`.
 
 ## Dialects

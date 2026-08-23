@@ -1,13 +1,13 @@
-# CLAUDE.md - grokifyql
+# CLAUDE.md - guardsql
 
-GrokifyQL is a small, SaaS-safe query language for analytics and reporting. The
+GuardSQL is a small, SaaS-safe query language for analytics and reporting. The
 core package should stay lightweight and should not import concrete
 authorization engines or database drivers.
 
 This repository is the Go engine. Non-Go runtime integrations should be kept in
 separate repositories or modules. Hibernate support should live in a Java
-project such as `github.com/grokify/grokifyql-java` or
-`github.com/grokify/grokifyql-hibernate`.
+project such as `github.com/grokify/guardsql-java` or
+`github.com/grokify/guardsql-hibernate`.
 
 ## Core Contract
 

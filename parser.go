@@ -1,4 +1,4 @@
-package grokifyql
+package guardsql
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Parse parses a read-only GrokifyQL statement into an AST.
+// Parse parses a read-only GuardSQL statement into an AST.
 func Parse(input string) (*Query, error) {
 	toks, err := lexAll(input)
 	if err != nil {

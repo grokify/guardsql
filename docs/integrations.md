@@ -1,41 +1,41 @@
 # Integrations
 
-GrokifyQL is intended to be shared across Grokify and PlexusOne analytics
+GuardSQL is intended to be shared across Grokify and PlexusOne analytics
 products while keeping product-specific execution outside the core module.
 
 This repository is the Go engine. Integrations that require another runtime
 should live outside the root Go module. Hibernate support should be implemented
-in a Java-focused repository such as `github.com/grokify/grokifyql-java` or a
-more specific `github.com/grokify/grokifyql-hibernate`.
+in a Java-focused repository such as `github.com/grokify/guardsql-java` or a
+more specific `github.com/grokify/guardsql-hibernate`.
 
 ## UIForge
 
-UIForge uses GrokifyQL for Metabase-style Questions and ad-hoc analytics
+UIForge uses GuardSQL for Metabase-style Questions and ad-hoc analytics
 queries.
 
 The UIForge server:
 
 - reads a neutral analytics catalog
-- converts datasets and fields into a GrokifyQL schema
+- converts datasets and fields into a GuardSQL schema
 - asks SystemForge/SpiceDB for dataset and field authorization
-- compiles that authorization into `grokifyql.Policy`
+- compiles that authorization into `guardsql.Policy`
 - checks policy before saving Questions and before executing ad-hoc queries
 
 ## OmniRoadmap
 
 OmniRoadmap exposes product-roadmap analytics over a DoltDB-backed store. It can
-act as a UIForge analytics provider or expose its own GrokifyQL-compatible API.
+act as a UIForge analytics provider or expose its own GuardSQL-compatible API.
 
 Recommended boundary:
 
 - OmniRoadmap owns canonical roadmap data and tenant/product permissions.
-- GrokifyQL owns AST parsing and policy checks.
+- GuardSQL owns AST parsing and policy checks.
 - UIForge owns dashboard composition and saved Questions.
 
 ## Aha Studio
 
 Aha Studio can expose Aha-imported data through a product-specific dialect name
-such as `AQL` while reusing GrokifyQL internals.
+such as `AQL` while reusing GuardSQL internals.
 
 ## VisionStudio
 
@@ -45,7 +45,7 @@ analytics to UIForge or other tools.
 ## Dialect Names
 
 Product-specific dialect names such as `AQL` and `ORQL` can be useful in APIs
-and UIs, but the shared AST and policy model should remain GrokifyQL-compatible.
+and UIs, but the shared AST and policy model should remain GuardSQL-compatible.
 
 ## Java and Hibernate
 

@@ -1,8 +1,8 @@
-package grokifyql
+package guardsql
 
 import "fmt"
 
-// Query is the parsed representation of a GrokifyQL query.
+// Query is the parsed representation of a GuardSQL query.
 type Query struct {
 	Operation  Operation
 	With       []CTE

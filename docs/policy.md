@@ -1,6 +1,6 @@
 # Policy
 
-`grokifyql.Policy` applies AST-level safety rules. It is designed for structural
+`guardsql.Policy` applies AST-level safety rules. It is designed for structural
 query controls and for compiled authorization decisions.
 
 For new authorization integrations, call `Analyze` first and authorize the
@@ -10,12 +10,12 @@ enforcing the current AST-level allowlist.
 ## Policy Shape
 
 ```go
-policy := grokifyql.Policy{
-    AllowedOps:       []grokifyql.Operation{grokifyql.OperationRead},
+policy := guardsql.Policy{
+    AllowedOps:       []guardsql.Operation{guardsql.OperationRead},
     AllowedEntities:  []string{"roadmap_items"},
-    AllowedJoinTypes: []grokifyql.JoinType{grokifyql.JoinInner, grokifyql.JoinLeft},
-    AllowedFunctions: []grokifyql.AggregateFunc{grokifyql.AggCount, grokifyql.AggSum},
-    Fields: map[string]map[string]grokifyql.FieldPolicy{
+    AllowedJoinTypes: []guardsql.JoinType{guardsql.JoinInner, guardsql.JoinLeft},
+    AllowedFunctions: []guardsql.AggregateFunc{guardsql.AggCount, guardsql.AggSum},
+    Fields: map[string]map[string]guardsql.FieldPolicy{
         "roadmap_items": {
             "name":   {Selectable: true, Filterable: true, Sortable: true, Groupable: true},
             "score":  {Selectable: true, Filterable: true, Sortable: true, Groupable: true, Aggregatable: true},
@@ -40,7 +40,7 @@ policy := grokifyql.Policy{
 For a generated deny-by-default starting point:
 
 ```go
-policy := grokifyql.SafeAnalyticsPolicy(schema)
+policy := guardsql.SafeAnalyticsPolicy(schema)
 ```
 
 ## Read-Only Analytics
@@ -48,7 +48,7 @@ policy := grokifyql.SafeAnalyticsPolicy(schema)
 Analytics endpoints should normally set:
 
 ```go
-AllowedOps: []grokifyql.Operation{grokifyql.OperationRead}
+AllowedOps: []guardsql.Operation{guardsql.OperationRead}
 ```
 
 Future mutation operations should remain behind separate APIs, explicit
@@ -123,7 +123,7 @@ This is the first step toward distinct parsed, resolved, authorized, and
 executable query states.
 
 ```go
-analysis, err := grokifyql.Analyze(q, schema)
+analysis, err := guardsql.Analyze(q, schema)
 if err != nil {
     return err
 }
@@ -133,11 +133,11 @@ for _, field := range analysis.Requirements().Fields {
 }
 ```
 
-Use this layer when mapping GrokifyQL to external authorization systems because
+Use this layer when mapping GuardSQL to external authorization systems because
 it records how fields are used, not just whether they appear in a projection.
 
 ```go
-issues := grokifyql.CheckAnalysisPolicy(analysis, policy)
+issues := guardsql.CheckAnalysisPolicy(analysis, policy)
 ```
 
 ## Example Policies

@@ -1,6 +1,6 @@
-package grokifyql
+package guardsql
 
-// LintConfig defines static policy checks for user-authored GrokifyQL.
+// LintConfig defines static policy checks for user-authored GuardSQL.
 type LintConfig struct {
 	Schema       Schema
 	AllowedOps   []Operation

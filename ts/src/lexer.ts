@@ -1,4 +1,4 @@
-import { GrokifyQLParseError } from './errors.js'
+import { GuardSQLParseError } from './errors.js'
 
 export type TokenType = 'identifier' | 'string' | 'number' | 'operator' | 'punct' | 'eof'
 
@@ -36,17 +36,17 @@ export function lex(input: string): Token[] {
           break
         }
         if (current === '\\') {
-          if (pos >= input.length) throw new GrokifyQLParseError('unterminated string', start)
+          if (pos >= input.length) throw new GuardSQLParseError('unterminated string', start)
           const escaped = input[pos++]
           if (escaped === 'n') out += '\n'
           else if (escaped === 't') out += '\t'
           else if (escaped === quote || escaped === '\\') out += escaped
-          else throw new GrokifyQLParseError('unsupported escape sequence', pos - 2)
+          else throw new GuardSQLParseError('unsupported escape sequence', pos - 2)
           continue
         }
         out += current
       }
-      if (!closed) throw new GrokifyQLParseError('unterminated string', start)
+      if (!closed) throw new GuardSQLParseError('unterminated string', start)
       continue
     }
     if (/[0-9]/.test(ch)) {
@@ -66,7 +66,7 @@ export function lex(input: string): Token[] {
       pos++
       continue
     }
-    throw new GrokifyQLParseError(`unexpected character ${JSON.stringify(ch)}`, pos)
+    throw new GuardSQLParseError(`unexpected character ${JSON.stringify(ch)}`, pos)
   }
   tokens.push({ type: 'eof', text: '', offset: input.length })
   return tokens

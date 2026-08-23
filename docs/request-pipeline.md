@@ -1,6 +1,6 @@
 # Request Pipeline
 
-Hosted applications should process customer-authored GrokifyQL in a fixed order.
+Hosted applications should process customer-authored GuardSQL in a fixed order.
 
 ```text
 Parse -> Validate -> Analyze -> Policy -> Authorize -> Compile -> Execute
@@ -12,7 +12,7 @@ Parse -> Validate -> Analyze -> Policy -> Authorize -> Compile -> Execute
 syntax error, not an injection event.
 
 ```go
-q, err := grokifyql.Parse(input)
+q, err := guardsql.Parse(input)
 ```
 
 ## Validate
@@ -22,7 +22,7 @@ Validation is structural and schema-oriented. It is not a replacement for user
 authorization.
 
 ```go
-err := grokifyql.Validate(q, schema)
+err := guardsql.Validate(q, schema)
 ```
 
 ## Analyze
@@ -33,7 +33,7 @@ This is the preferred input for authorization adapters because it describes what
 the query actually attempts to use.
 
 ```go
-analysis, err := grokifyql.Analyze(q, schema)
+analysis, err := guardsql.Analyze(q, schema)
 if err != nil {
     return err
 }
@@ -52,7 +52,7 @@ required limits, maximum limits, expression complexity, and maximum `IN` list
 size.
 
 ```go
-issues := grokifyql.CheckPolicy(q, policy)
+issues := guardsql.CheckPolicy(q, policy)
 ```
 
 ## Authorize
@@ -61,8 +61,8 @@ Authorization decisions should come from trusted application context, such as
 tenant membership, RBAC/ReBAC roles, SpiceDB relationships, or service account
 scopes.
 
-Authorization may be enforced outside GrokifyQL, or compiled into
-`grokifyql.Policy` before `CheckPolicy`.
+Authorization may be enforced outside GuardSQL, or compiled into
+`guardsql.Policy` before `CheckPolicy`.
 
 For relationship-aware systems such as SpiceDB, prefer authorizing the
 `RequirementSet` from `Analyze` instead of asking one broad question such as

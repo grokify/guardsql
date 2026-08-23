@@ -1,6 +1,6 @@
 # Development
 
-GrokifyQL should stay small and dependency-light.
+GuardSQL should stay small and dependency-light.
 
 ## Repository Layout
 
@@ -20,8 +20,8 @@ GrokifyQL should stay small and dependency-light.
 
 ## Module Boundaries
 
-- Root module: `github.com/grokify/grokifyql`
-- Optional SystemForge module: `github.com/grokify/grokifyql/authzsystemforge`
+- Root module: `github.com/grokify/guardsql`
+- Optional SystemForge module: `github.com/grokify/guardsql/authzsystemforge`
 
 Do not add SystemForge, SpiceDB, Cedar, Rego, SQL drivers, Ent, or storage
 dependencies to the root module.

@@ -1,7 +1,7 @@
 {
   "irVersion": "1.0",
-  "project": "grokifyql",
-  "repository": "https://github.com/grokify/grokifyql",
+  "project": "guardsql",
+  "repository": "https://github.com/grokify/guardsql",
   "versioning": "semver",
   "commitConvention": "conventional",
   "maintainers": ["grokify", "johncwang@gmail.com"],
@@ -12,7 +12,7 @@
       "commit": "d4b4a64",
       "highlights": [
         {
-          "description": "Initial GrokifyQL release with a SaaS-safe parser, AST, schema validation, policy checks, formatter, and in-memory evaluator"
+          "description": "Initial GuardSQL release with a SaaS-safe parser, AST, schema validation, policy checks, formatter, and in-memory evaluator"
         },
         {
           "description": "Browser-side TypeScript package and optional SystemForge authorization adapter for application integrations"
@@ -20,7 +20,7 @@
       ],
       "added": [
         {
-          "description": "Read-only GrokifyQL parser and AST for SELECT/FROM/WHERE/GROUP BY/HAVING/ORDER BY/LIMIT, CTEs, joins, nested sources, aggregate functions, and PRIORITIZE BY",
+          "description": "Read-only GuardSQL parser and AST for SELECT/FROM/WHERE/GROUP BY/HAVING/ORDER BY/LIMIT, CTEs, joins, nested sources, aggregate functions, and PRIORITIZE BY",
           "commit": "0658bf3"
         },
         {
@@ -32,7 +32,7 @@
           "commit": "0658bf3"
         },
         {
-          "description": "Dependency-free formatter and grokifyqlfmt CLI for canonical query output, single-line formatting, and ANSI highlighting",
+          "description": "Dependency-free formatter and guardsqlfmt CLI for canonical query output, single-line formatting, and ANSI highlighting",
           "commit": "0658bf3"
         },
         {

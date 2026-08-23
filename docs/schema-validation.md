@@ -1,19 +1,19 @@
 # Schema Validation
 
-GrokifyQL schemas define what a query may reference. They are an allowlist, not
+GuardSQL schemas define what a query may reference. They are an allowlist, not
 a database introspection cache.
 
 ## Schema Shape
 
 ```go
-schema := grokifyql.Schema{
-    Entities: map[string]grokifyql.Entity{
+schema := guardsql.Schema{
+    Entities: map[string]guardsql.Entity{
         "roadmap_items": {
-            Fields: map[string]grokifyql.Field{
-                "id":     {Type: grokifyql.FieldString, Selectable: true, Filterable: true, Sortable: true},
-                "name":   {Type: grokifyql.FieldString, Selectable: true, Filterable: true, Sortable: true},
-                "score":  {Type: grokifyql.FieldNumber, Selectable: true, Filterable: true, Sortable: true},
-                "status": {Type: grokifyql.FieldString, Selectable: true, Filterable: true, Sortable: true},
+            Fields: map[string]guardsql.Field{
+                "id":     {Type: guardsql.FieldString, Selectable: true, Filterable: true, Sortable: true},
+                "name":   {Type: guardsql.FieldString, Selectable: true, Filterable: true, Sortable: true},
+                "score":  {Type: guardsql.FieldNumber, Selectable: true, Filterable: true, Sortable: true},
+                "status": {Type: guardsql.FieldString, Selectable: true, Filterable: true, Sortable: true},
             },
         },
     },
@@ -31,7 +31,7 @@ Supported coarse field types:
 | `bool` | boolean flags |
 | `time` | dates and timestamps |
 
-Backends may maintain richer internal types. GrokifyQL field types are intended
+Backends may maintain richer internal types. GuardSQL field types are intended
 for query validation and UI-safe metadata.
 
 ## Capabilities
@@ -65,7 +65,7 @@ aliases, so a real dotted field such as `custom.launch_tier` remains addressable
 `Analyze` uses the same schema allowlist to produce resolved query requirements:
 
 ```go
-analysis, err := grokifyql.Analyze(q, schema)
+analysis, err := guardsql.Analyze(q, schema)
 if err != nil {
     return err
 }

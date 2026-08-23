@@ -1,3 +1,3 @@
-module github.com/grokify/grokifyql
+module github.com/grokify/guardsql
 
 go 1.23

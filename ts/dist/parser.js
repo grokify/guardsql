@@ -1,4 +1,4 @@
-import { GrokifyQLParseError } from './errors.js';
+import { GuardSQLParseError } from './errors.js';
 import { lex } from './lexer.js';
 export function parse(input) {
     return new Parser(lex(input)).parseQuery();
@@ -46,7 +46,7 @@ class Parser {
         if (this.matchKeyword('LIMIT')) {
             const tok = this.consume();
             if (tok.type !== 'number' || !/^\d+$/.test(tok.text)) {
-                throw new GrokifyQLParseError('LIMIT must be an integer', tok.offset);
+                throw new GuardSQLParseError('LIMIT must be an integer', tok.offset);
             }
             query.limit = Number(tok.text);
         }
@@ -199,9 +199,9 @@ class Parser {
         else {
             const tok = this.consume();
             if (tok.type !== 'operator')
-                throw new GrokifyQLParseError('expected comparison operator', tok.offset);
+                throw new GuardSQLParseError('expected comparison operator', tok.offset);
             if (!['=', '!=', '<', '<=', '>', '>='].includes(tok.text)) {
-                throw new GrokifyQLParseError('invalid comparison operator', tok.offset);
+                throw new GuardSQLParseError('invalid comparison operator', tok.offset);
             }
             op = tok.text;
         }
@@ -221,7 +221,7 @@ class Parser {
             if (eq(tok.text, 'NULL'))
                 return null;
         }
-        throw new GrokifyQLParseError('expected literal value', tok.offset);
+        throw new GuardSQLParseError('expected literal value', tok.offset);
     }
     parseIdentifierList() {
         const out = [];
@@ -244,7 +244,7 @@ class Parser {
     parseIdentifier() {
         const tok = this.consume();
         if (tok.type !== 'identifier')
-            throw new GrokifyQLParseError('expected identifier', tok.offset);
+            throw new GuardSQLParseError('expected identifier', tok.offset);
         return tok.text;
     }
     nextStartsJoin() {
@@ -253,7 +253,7 @@ class Parser {
     expectEOFOrCloseParen() {
         if (this.peek().type === 'eof' || this.checkPunct(')'))
             return;
-        throw new GrokifyQLParseError('unexpected token', this.peek().offset);
+        throw new GuardSQLParseError('unexpected token', this.peek().offset);
     }
     consume() {
         return this.tokens[this.pos++];
@@ -273,7 +273,7 @@ class Parser {
     }
     expectKeyword(keyword) {
         if (!this.matchKeyword(keyword))
-            throw new GrokifyQLParseError(`expected ${keyword}`, this.peek().offset);
+            throw new GuardSQLParseError(`expected ${keyword}`, this.peek().offset);
     }
     matchPunct(text) {
         if (!this.checkPunct(text))
@@ -287,7 +287,7 @@ class Parser {
     }
     expectPunct(text) {
         if (!this.matchPunct(text))
-            throw new GrokifyQLParseError(`expected ${text}`, this.peek().offset);
+            throw new GuardSQLParseError(`expected ${text}`, this.peek().offset);
     }
 }
 function aggregateFunction(value) {

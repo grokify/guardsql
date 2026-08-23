@@ -1,8 +1,8 @@
-site_name: GrokifyQL
+site_name: GuardSQL
 site_description: SaaS-safe query language and AST policy toolkit for analytics
-site_url: https://grokify.github.io/grokifyql/
-repo_url: https://github.com/grokify/grokifyql
-repo_name: grokify/grokifyql
+site_url: https://grokify.github.io/guardsql/
+repo_url: https://github.com/grokify/guardsql
+repo_name: grokify/guardsql
 
 theme:
   name: material
@@ -54,4 +54,4 @@ nav:
   - Releases:
       - v0.1.0: releases/v0.1.0.md
   - Development: development.md
-  - API Reference: https://pkg.go.dev/github.com/grokify/grokifyql
+  - API Reference: https://pkg.go.dev/github.com/grokify/guardsql

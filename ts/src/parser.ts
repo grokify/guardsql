@@ -1,4 +1,4 @@
-import { GrokifyQLParseError } from './errors.js'
+import { GuardSQLParseError } from './errors.js'
 import { lex, type Token } from './lexer.js'
 import type {
   AggregateFunction,
@@ -56,7 +56,7 @@ class Parser {
     if (this.matchKeyword('LIMIT')) {
       const tok = this.consume()
       if (tok.type !== 'number' || !/^\d+$/.test(tok.text)) {
-        throw new GrokifyQLParseError('LIMIT must be an integer', tok.offset)
+        throw new GuardSQLParseError('LIMIT must be an integer', tok.offset)
       }
       query.limit = Number(tok.text)
     }
@@ -199,9 +199,9 @@ class Parser {
     if (this.matchKeyword('CONTAINS')) op = 'CONTAINS'
     else {
       const tok = this.consume()
-      if (tok.type !== 'operator') throw new GrokifyQLParseError('expected comparison operator', tok.offset)
+      if (tok.type !== 'operator') throw new GuardSQLParseError('expected comparison operator', tok.offset)
       if (!['=', '!=', '<', '<=', '>', '>='].includes(tok.text)) {
-        throw new GrokifyQLParseError('invalid comparison operator', tok.offset)
+        throw new GuardSQLParseError('invalid comparison operator', tok.offset)
       }
       op = tok.text as CompareOp
     }
@@ -217,7 +217,7 @@ class Parser {
       if (eq(tok.text, 'FALSE')) return false
       if (eq(tok.text, 'NULL')) return null
     }
-    throw new GrokifyQLParseError('expected literal value', tok.offset)
+    throw new GuardSQLParseError('expected literal value', tok.offset)
   }
 
   private parseIdentifierList(): string[] {
@@ -240,7 +240,7 @@ class Parser {
 
   private parseIdentifier(): string {
     const tok = this.consume()
-    if (tok.type !== 'identifier') throw new GrokifyQLParseError('expected identifier', tok.offset)
+    if (tok.type !== 'identifier') throw new GuardSQLParseError('expected identifier', tok.offset)
     return tok.text
   }
 
@@ -250,7 +250,7 @@ class Parser {
 
   private expectEOFOrCloseParen() {
     if (this.peek().type === 'eof' || this.checkPunct(')')) return
-    throw new GrokifyQLParseError('unexpected token', this.peek().offset)
+    throw new GuardSQLParseError('unexpected token', this.peek().offset)
   }
 
   private consume() {
@@ -273,7 +273,7 @@ class Parser {
   }
 
   private expectKeyword(keyword: string) {
-    if (!this.matchKeyword(keyword)) throw new GrokifyQLParseError(`expected ${keyword}`, this.peek().offset)
+    if (!this.matchKeyword(keyword)) throw new GuardSQLParseError(`expected ${keyword}`, this.peek().offset)
   }
 
   private matchPunct(text: string) {
@@ -288,7 +288,7 @@ class Parser {
   }
 
   private expectPunct(text: string) {
-    if (!this.matchPunct(text)) throw new GrokifyQLParseError(`expected ${text}`, this.peek().offset)
+    if (!this.matchPunct(text)) throw new GuardSQLParseError(`expected ${text}`, this.peek().offset)
   }
 }
 

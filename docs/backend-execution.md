@@ -1,6 +1,6 @@
 # Backend Execution
 
-GrokifyQL is not a database engine. It provides an AST and helpers that backend
+GuardSQL is not a database engine. It provides an AST and helpers that backend
 providers can use safely.
 
 ## In-Memory Evaluator

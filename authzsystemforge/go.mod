@@ -1,9 +1,9 @@
-module github.com/grokify/grokifyql/authzsystemforge
+module github.com/grokify/guardsql/authzsystemforge
 
 go 1.26.5
 
 require (
-	github.com/grokify/grokifyql v0.0.0
+	github.com/grokify/guardsql v0.0.0
 	github.com/grokify/systemforge v0.0.0
 )
 
@@ -49,12 +49,12 @@ require (
 	golang.org/x/net v0.58.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.41.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260810153831-ec0a7760b754 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260810153831-ec0a7760b754 // indirect
-	google.golang.org/grpc v1.83.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260819154853-08b0e4226688 // indirect
+	google.golang.org/grpc v1.83.1 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )
 
-replace github.com/grokify/grokifyql => ..
+replace github.com/grokify/guardsql => ..
 
 replace github.com/grokify/systemforge => ../../systemforge

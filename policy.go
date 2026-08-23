@@ -1,11 +1,11 @@
-package grokifyql
+package guardsql
 
 import (
 	"fmt"
 	"strings"
 )
 
-// Policy defines AST-level safety rules for a GrokifyQL query. It is intended
+// Policy defines AST-level safety rules for a GuardSQL query. It is intended
 // for structural query controls; application authorization systems can compile
 // their decisions into this policy shape before execution.
 type Policy struct {
@@ -46,7 +46,7 @@ type PolicyIssue struct {
 	Message string
 }
 
-// CheckPolicy applies AST-level policy checks to a parsed GrokifyQL query. It
+// CheckPolicy applies AST-level policy checks to a parsed GuardSQL query. It
 // does not mutate the query.
 func CheckPolicy(q *Query, policy Policy) []PolicyIssue {
 	if q == nil {

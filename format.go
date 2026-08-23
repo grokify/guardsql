@@ -1,4 +1,4 @@
-package grokifyql
+package guardsql
 
 import (
 	"fmt"
@@ -23,7 +23,7 @@ const (
 	HighlightANSI HighlightStyle = "ansi"
 )
 
-// FormatOptions configures GrokifyQL formatting.
+// FormatOptions configures GuardSQL formatting.
 type FormatOptions struct {
 	Style     FormatStyle
 	Indent    string
@@ -39,7 +39,7 @@ func DefaultFormatOptions() FormatOptions {
 	}
 }
 
-// Format parses input and returns canonical GrokifyQL text.
+// Format parses input and returns canonical GuardSQL text.
 func Format(input string, opts FormatOptions) (string, error) {
 	q, err := Parse(input)
 	if err != nil {
@@ -48,7 +48,7 @@ func Format(input string, opts FormatOptions) (string, error) {
 	return FormatQuery(q, opts), nil
 }
 
-// FormatQuery formats a parsed GrokifyQL query.
+// FormatQuery formats a parsed GuardSQL query.
 func FormatQuery(q *Query, opts FormatOptions) string {
 	if q == nil {
 		return ""
@@ -64,7 +64,7 @@ func FormatQuery(q *Query, opts FormatOptions) string {
 	return text
 }
 
-// HighlightANSIText applies terminal ANSI colors to GrokifyQL keywords and
+// HighlightANSIText applies terminal ANSI colors to GuardSQL keywords and
 // literals. It is best-effort and intended for display, not parsing.
 func HighlightANSIText(input string) string {
 	toks, err := lexAll(input)

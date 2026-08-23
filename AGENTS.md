@@ -1,6 +1,6 @@
-# AGENTS.md - GrokifyQL
+# AGENTS.md - GuardSQL
 
-This repo implements GrokifyQL, a SaaS-safe query language and AST policy
+This repo implements GuardSQL, a SaaS-safe query language and AST policy
 toolkit for analytics/reporting.
 
 ## Rules for Agents
@@ -12,9 +12,9 @@ toolkit for analytics/reporting.
   `authzsystemforge/` is intentionally a nested module.
 - Keep this repository focused on the Go engine. Non-Go runtime integrations,
   including Hibernate, belong in separate repositories such as
-  `github.com/grokify/grokifyql-java` or
-  `github.com/grokify/grokifyql-hibernate`.
-- Never suggest executing GrokifyQL text as SQL. The safe path is parse, validate,
+  `github.com/grokify/guardsql-java` or
+  `github.com/grokify/guardsql-hibernate`.
+- Never suggest executing GuardSQL text as SQL. The safe path is parse, validate,
   check policy, compile trusted AST nodes, then execute with service-owned
   limits.
 - Treat the AST as the trust boundary.
@@ -57,7 +57,7 @@ mkdocs build --strict
 ## Related Repos
 
 - `../omniroadmap`: product roadmapping analytics provider.
-- `../../plexusone/uiforge`: analytics dashboard builder using GrokifyQL
+- `../../plexusone/uiforge`: analytics dashboard builder using GuardSQL
   Questions and SystemForge/SpiceDB policy.
 - `../systemforge`: authorization bridge and SpiceDB provider.
 - Future Java/Hibernate integration should be external to this repo.

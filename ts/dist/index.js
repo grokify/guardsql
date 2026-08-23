@@ -1,4 +1,4 @@
-export { GrokifyQLParseError } from './errors.js';
+export { GuardSQLParseError } from './errors.js';
 export { format, formatQuery, highlightANSI, } from './format.js';
 export { lex } from './lexer.js';
 export { parse } from './parser.js';

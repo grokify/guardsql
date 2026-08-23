@@ -1,6 +1,6 @@
 # Example fail-closed policy profile for customer-authored analytics queries.
 # This file documents intended controls. Go callers should build equivalent
-# grokifyql.Policy values, usually starting from SafeAnalyticsPolicy(schema).
+# guardsql.Policy values, usually starting from SafeAnalyticsPolicy(schema).
 
 operations:
   allow:

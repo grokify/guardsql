@@ -1,10 +1,10 @@
 # Security Hardening
 
-GrokifyQL treats customer-authored query text as an untrusted source language.
+GuardSQL treats customer-authored query text as an untrusted source language.
 The engine should accept only the subset it can parse, validate, analyze,
 authorize, and compile from trusted AST nodes.
 
-## Enforced in GrokifyQL
+## Enforced in GuardSQL
 
 The Go engine can enforce these controls before backend execution:
 
@@ -26,22 +26,22 @@ The Go engine can enforce these controls before backend execution:
 Use the resolved analysis path for operational systems:
 
 ```go
-q, err := grokifyql.Parse(input)
+q, err := guardsql.Parse(input)
 if err != nil {
     return err
 }
-if err := grokifyql.Validate(q, schema); err != nil {
+if err := guardsql.Validate(q, schema); err != nil {
     return err
 }
-analysis, err := grokifyql.Analyze(q, schema)
+analysis, err := guardsql.Analyze(q, schema)
 if err != nil {
     return err
 }
-policy := grokifyql.SafeAnalyticsPolicy(schema)
-if issues := grokifyql.CheckPolicy(q, policy); len(issues) > 0 {
+policy := guardsql.SafeAnalyticsPolicy(schema)
+if issues := guardsql.CheckPolicy(q, policy); len(issues) > 0 {
     return fmt.Errorf("query shape not allowed: %s", issues[0].Message)
 }
-if issues := grokifyql.CheckAnalysisPolicy(analysis, policy); len(issues) > 0 {
+if issues := guardsql.CheckAnalysisPolicy(analysis, policy); len(issues) > 0 {
     return fmt.Errorf("query requirements not allowed: %s", issues[0].Message)
 }
 ```
@@ -71,7 +71,7 @@ should also enforce:
 - audit logs for original query, normalized AST, analysis requirements, policy
   issues, authorization decision, and rendered query fingerprint
 
-The database account remains the final RCE boundary. GrokifyQL reduces the
+The database account remains the final RCE boundary. GuardSQL reduces the
 accepted query language to a policy-approved subset, but it should still run
 against a least-privileged backend identity.
 

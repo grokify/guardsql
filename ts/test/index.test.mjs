@@ -19,7 +19,7 @@ test('parses and checks a basic query', () => {
   assert.deepEqual(checkPolicy(query, { allowedOps: ['read'], maxDepth: 8, maxNodes: 80 }), [])
 })
 
-test('formats GrokifyQL queries', () => {
+test('formats GuardSQL queries', () => {
   assert.equal(
     format('select name,count(*) as count from initiatives where provider="aha-studio" and workspace_ref="SAVIN" group by name having count > 1 prioritize by moscow_rice order by count desc limit 10'),
     [
@@ -41,7 +41,7 @@ test('formats GrokifyQL queries', () => {
   )
 })
 
-test('highlights GrokifyQL keywords for ANSI terminals', () => {
+test('highlights GuardSQL keywords for ANSI terminals', () => {
   const highlighted = highlightANSI('SELECT name FROM items WHERE active = TRUE')
   assert.match(highlighted, /\u001b\[1;36mSELECT\u001b\[0m/)
   assert.match(highlighted, /\u001b\[35mTRUE\u001b\[0m/)

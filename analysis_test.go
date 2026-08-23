@@ -1,4 +1,4 @@
-package grokifyql
+package guardsql
 
 import (
 	"strings"

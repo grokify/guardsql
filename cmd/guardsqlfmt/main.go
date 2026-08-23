@@ -6,12 +6,12 @@ import (
 	"io"
 	"os"
 
-	"github.com/grokify/grokifyql"
+	"github.com/grokify/guardsql"
 )
 
 func main() {
-	style := flag.String("style", string(grokifyql.FormatMultiline), "format style: multiline or singleline")
-	highlight := flag.String("highlight", string(grokifyql.HighlightNone), "syntax highlighting: none or ansi")
+	style := flag.String("style", string(guardsql.FormatMultiline), "format style: multiline or singleline")
+	highlight := flag.String("highlight", string(guardsql.HighlightNone), "syntax highlighting: none or ansi")
 	indent := flag.String("indent", "\t", "indent string for multiline output")
 	flag.Parse()
 
@@ -20,10 +20,10 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	output, err := grokifyql.Format(string(input), grokifyql.FormatOptions{
-		Style:     grokifyql.FormatStyle(*style),
+	output, err := guardsql.Format(string(input), guardsql.FormatOptions{
+		Style:     guardsql.FormatStyle(*style),
 		Indent:    *indent,
-		Highlight: grokifyql.HighlightStyle(*highlight),
+		Highlight: guardsql.HighlightStyle(*highlight),
 	})
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
