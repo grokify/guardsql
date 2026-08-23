@@ -7,6 +7,62 @@
   "maintainers": ["grokify", "johncwang@gmail.com"],
   "releases": [
     {
+      "version": "v0.2.0",
+      "date": "2026-08-23",
+      "commit": "0c7a82e",
+      "highlights": [
+        {
+          "description": "Project renamed from GrokifyQL to GuardSQL to better describe the SQL safety and policy enforcement mission"
+        }
+      ],
+      "breaking": [
+        {
+          "description": "Go module path changed from `github.com/grokify/grokifyql` to `github.com/grokify/guardsql`",
+          "commit": "0c7a82e"
+        },
+        {
+          "description": "Go package name changed from `grokifyql` to `guardsql`",
+          "commit": "0c7a82e"
+        },
+        {
+          "description": "Formatter command path changed from `cmd/grokifyqlfmt` to `cmd/guardsqlfmt`",
+          "commit": "0c7a82e"
+        },
+        {
+          "description": "TypeScript package name changed from `@grokify/grokifyql` to `@grokify/guardsql`",
+          "commit": "0c7a82e"
+        },
+        {
+          "description": "Optional SystemForge adapter module changed from `github.com/grokify/grokifyql/authzsystemforge` to `github.com/grokify/guardsql/authzsystemforge`",
+          "commit": "0c7a82e"
+        }
+      ],
+      "changed": [
+        {
+          "description": "Updated README, MkDocs site metadata, release notes, changelog links, examples, package comments, tests, and generated TypeScript distribution files for the GuardSQL name",
+          "commit": "0c7a82e"
+        },
+        {
+          "description": "Renamed public TypeScript parse error type from `GrokifyQLParseError` to `GuardSQLParseError`",
+          "commit": "0c7a82e"
+        }
+      ],
+      "upgradeGuide": [
+        {
+          "description": "Update Go imports from `github.com/grokify/grokifyql` to `github.com/grokify/guardsql` and rename local package aliases from `grokifyql` to `guardsql` where used"
+        },
+        {
+          "description": "Update formatter invocations from `go run ./cmd/grokifyqlfmt` to `go run ./cmd/guardsqlfmt`"
+        },
+        {
+          "description": "Update TypeScript imports from `@grokify/grokifyql` to `@grokify/guardsql`"
+        },
+        {
+          "description": "Update SystemForge adapter imports to `github.com/grokify/guardsql/authzsystemforge`"
+        }
+      ]
+    },
+    {
       "version": "v0.1.0",
       "date": "2026-08-22",
       "commit": "d4b4a64",

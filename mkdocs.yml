@@ -52,6 +52,7 @@ nav:
   - Backend Execution: backend-execution.md
   - Integrations: integrations.md
   - Releases:
+      - v0.2.0: releases/v0.2.0.md
       - v0.1.0: releases/v0.1.0.md
   - Development: development.md
   - API Reference: https://pkg.go.dev/github.com/grokify/guardsql
