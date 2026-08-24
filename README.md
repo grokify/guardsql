@@ -26,12 +26,7 @@
 
 GuardSQL is a small, application-neutral query language for Grokify analytics services. It is intended to provide a Jira Query Language style interface for SaaS reporting without passing customer-authored SQL directly to databases.
 
-This repository is the Go engine for GuardSQL: parser, AST, schema validation,
-policy checks, lightweight authorization adapters, and backend compiler
-contracts. Runtime integrations for other language stacks should live in
-separate repositories or modules. A Hibernate integration, for example, should
-belong in a Java-focused project such as `github.com/grokify/guardsql-java` or
-`github.com/grokify/guardsql-hibernate`, not in this root Go module.
+This repository is the Go engine for GuardSQL: parser, AST, schema validation, policy checks, lightweight authorization adapters, and backend compiler contracts. Runtime integrations for other language stacks should live in separate repositories or modules.
 
 The core contract is a parser that converts user-authored text into Go structs. Applications should pass the parsed AST through schema validation, static lint policy, and backend-specific compilers. The original text should not be executed directly.
 
