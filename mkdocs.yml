@@ -43,19 +43,21 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Getting Started: guides/getting-started.md
-  - Query Language: guides/query-language.md
-  - Request Pipeline: guides/request-pipeline.md
-  - Schema Validation: guides/schema-validation.md
-  - Schema from a Data Catalog: guides/catalog-schema.md
-  - Policy: guides/policy.md
-  - SQL Compiler: guides/compiler.md
-  - Config & Trust Modes: guides/trust-modes.md
-  - Mutations: guides/mutations.md
-  - Security Hardening: guides/security-hardening.md
-  - Authorization: guides/authorization.md
-  - Backend Execution: guides/backend-execution.md
-  - Integrations: guides/integrations.md
+  - Using GuardSQL:
+      - Getting Started: guides/getting-started.md
+      - Query Language: guides/query-language.md
+      - Request Pipeline: guides/request-pipeline.md
+      - Schema Validation: guides/schema-validation.md
+      - Schema from a Data Catalog: guides/catalog-schema.md
+      - Policy: guides/policy.md
+      - SQL Compiler: guides/compiler.md
+      - Config & Trust Modes: guides/trust-modes.md
+      - Mutations: guides/mutations.md
+      - Backend Execution: guides/backend-execution.md
+      - Integrations: guides/integrations.md
+  - Security:
+      - Security Hardening: guides/security-hardening.md
+      - Authorization: guides/authorization.md
   - Releases:
       - v0.3.0: releases/v0.3.0.md
       - v0.2.0: releases/v0.2.0.md
