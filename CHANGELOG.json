@@ -33,11 +33,23 @@
       },
       {
         "description": "`FromCatalog` builds a `Schema` from a `datacatalog` catalog, validating it and mapping visibility, PII, and secret tags to the single most restrictive `Field.Class`, with `WithWritable` and `WithNonFilterable` options"
+      },
+      {
+        "description": "Postgres casts JSON-path extractions to `numeric`/`boolean` for numeric and boolean comparisons and `SUM`/`AVG`, so JSON numeric filters execute"
+      },
+      {
+        "description": "`CompileOptions.ScopeSchema`: the row-scope predicate resolves against the full schema, so a scope may reference a column hidden from callers"
+      },
+      {
+        "description": "`Insert` stamps the row scope's equality terms onto the new row, and `Insert`/`Update` reject assignment to scope columns"
       }
     ],
     "changed": [
       {
         "description": "Minimum Go version raised from 1.23 to 1.25, as required by the new `github.com/grokify/datacatalog` dependency"
+      },
+      {
+        "description": "JSON path segments are restricted to ASCII letters, digits, and underscore, matching identifier lockdown"
       }
     ]
   },
