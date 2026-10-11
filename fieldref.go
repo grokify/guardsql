@@ -1,9 +1,6 @@
 package guardsql
 
-import (
-	"strings"
-	"unicode"
-)
+import "strings"
 
 // FieldRef is a field name resolved against a schema entity. For a plain column
 // JSONPath is empty; for a dotted reference into a FieldJSON column (e.g.
@@ -70,16 +67,20 @@ func resolveField(ent Entity, name string, aliases map[string]string) (FieldRef,
 	return FieldRef{}, false
 }
 
-// isSafePathSegment reports whether a JSON path segment is a bare identifier.
+// isSafePathSegment reports whether a JSON path segment is a bare ASCII
+// identifier (letters, digits, underscore), matching the identifier lockdown.
 // This is defense in depth: segments already come from lexed identifiers, but
-// the compiler re-checks before emitting a path so no separator or quote can
-// ever reach generated SQL.
+// the compiler re-checks before emitting a path so no separator, quote, or
+// non-ASCII homoglyph can ever reach generated SQL.
 func isSafePathSegment(s string) bool {
 	if s == "" {
 		return false
 	}
-	for _, r := range s {
-		if r != '_' && !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		switch {
+		case c == '_', c >= 'a' && c <= 'z', c >= 'A' && c <= 'Z', c >= '0' && c <= '9':
+		default:
 			return false
 		}
 	}

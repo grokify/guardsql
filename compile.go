@@ -253,7 +253,11 @@ func (c *compiler) aggregateExpr(agg *AggregateExpr, ent Entity) (string, error)
 	if !ok {
 		return "", fmt.Errorf("guardsql: unknown aggregate field %q", agg.Field)
 	}
-	return string(agg.Func) + "(" + c.fieldRefExpr(ref) + ")", nil
+	expr := c.fieldRefExpr(ref)
+	if ref.IsJSONPath() && (agg.Func == AggSum || agg.Func == AggAvg) {
+		expr = c.d.castNumber(expr)
+	}
+	return string(agg.Func) + "(" + expr + ")", nil
 }
 
 // fieldRefExpr emits the SQL expression for a resolved field reference: a quoted
@@ -312,6 +316,9 @@ func (c *compiler) compareExpr(cmp *CompareExpr, ent Entity) (string, error) {
 		return "", fmt.Errorf("guardsql: unknown filter field %q", cmp.Field)
 	}
 	col := c.fieldRefExpr(ref)
+	if ref.IsJSONPath() {
+		col = c.castJSON(col, cmp.Values)
+	}
 
 	switch cmp.Op {
 	case OpIsNull:
@@ -341,6 +348,29 @@ func (c *compiler) compareExpr(cmp *CompareExpr, ent Entity) (string, error) {
 	default:
 		return "", fmt.Errorf("guardsql: unsupported operator %q", cmp.Op)
 	}
+}
+
+// castJSON casts a JSON-extracted expression to match the literals it is
+// compared with: numeric literals compare as numbers and boolean literals as
+// booleans. Mixed or non-typed literals leave the extracted text uncast.
+func (c *compiler) castJSON(col string, values []Value) string {
+	var typ ValueType
+	for _, v := range values {
+		if v.Type == ValueNull {
+			continue
+		}
+		if typ != "" && typ != v.Type {
+			return col
+		}
+		typ = v.Type
+	}
+	switch typ {
+	case ValueNumber:
+		return c.d.castNumber(col)
+	case ValueBool:
+		return c.d.castBool(col)
+	}
+	return col
 }
 
 // valueArg converts a parsed literal into a bind argument. Whole numbers are
