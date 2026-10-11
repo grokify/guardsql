@@ -10,31 +10,31 @@
       
       
       
-        <link rel="canonical" href="https://grokify.github.io/guardsql/integrations/">
+        <link rel="canonical" href="https://grokify.github.io/guardsql/guides/authorization/">
       
       
-        <link rel="prev" href="../backend-execution/">
+        <link rel="prev" href="../security-hardening/">
       
       
-        <link rel="next" href="../releases/v0.2.0/">
+        <link rel="next" href="../../releases/v0.3.0/">
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Integrations - GuardSQL</title>
+        <title>Authorization - GuardSQL</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -53,7 +53,7 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#integrations" class="md-skip">
+        <a href="#authorization" class="md-skip">
           Skip to content
         </a>
       
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="GuardSQL" class="md-header__button md-logo" aria-label="GuardSQL" data-md-component="logo">
+    <a href="../.." title="GuardSQL" class="md-header__button md-logo" aria-label="GuardSQL" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Integrations
+              Authorization
             
           </span>
         </div>
@@ -230,7 +230,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="GuardSQL" class="md-nav__button md-logo" aria-label="GuardSQL" data-md-component="logo">
+    <a href="../.." title="GuardSQL" class="md-nav__button md-logo" aria-label="GuardSQL" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -260,7 +260,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -286,6 +286,88 @@
   
   
   
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using GuardSQL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Using GuardSQL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../query-language/" class="md-nav__link">
         
@@ -306,9 +388,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -333,9 +416,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -360,9 +444,38 @@
     </li>
   
 
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../catalog-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
     
-      
-      
+  
+    Schema from a Data Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
   
   
   
@@ -387,22 +500,23 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
   
     <li class="md-nav__item">
-      <a href="../security-hardening/" class="md-nav__link">
+      <a href="../compiler/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Security Hardening
+    SQL Compiler
   
 
     
@@ -414,22 +528,23 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
   
     <li class="md-nav__item">
-      <a href="../authorization/" class="md-nav__link">
+      <a href="../trust-modes/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Authorization
+    Config & Trust Modes
   
 
     
@@ -441,9 +556,38 @@
     </li>
   
 
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mutations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
     
-      
-      
+  
+    Mutations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
   
   
   
@@ -468,9 +612,127 @@
     </li>
   
 
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integrations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
     
       
       
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security-hardening/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security Hardening
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
   
   
     
@@ -492,7 +754,7 @@
   <span class="md-ellipsis">
     
   
-    Integrations
+    Authorization
   
 
     
@@ -510,7 +772,7 @@
   <span class="md-ellipsis">
     
   
-    Integrations
+    Authorization
   
 
     
@@ -536,10 +798,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#uiforge" class="md-nav__link">
+  <a href="#lightweight-decision-helper" class="md-nav__link">
     <span class="md-ellipsis">
       
-        UIForge
+        Lightweight Decision Helper
       
     </span>
   </a>
@@ -547,10 +809,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#omniroadmap" class="md-nav__link">
+  <a href="#systemforge-and-spicedb" class="md-nav__link">
     <span class="md-ellipsis">
       
-        OmniRoadmap
+        SystemForge and SpiceDB
       
     </span>
   </a>
@@ -558,10 +820,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#aha-studio" class="md-nav__link">
+  <a href="#resource-mapping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Aha Studio
+        Resource Mapping
       
     </span>
   </a>
@@ -569,32 +831,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#visionstudio" class="md-nav__link">
+  <a href="#other-engines" class="md-nav__link">
     <span class="md-ellipsis">
       
-        VisionStudio
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dialect-names" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dialect Names
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#java-and-hibernate" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Java and Hibernate
+        Other Engines
       
     </span>
   </a>
@@ -604,6 +844,14 @@
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -631,10 +879,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
         
           
-          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   
@@ -652,8 +900,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -670,7 +918,35 @@
   
   
     <li class="md-nav__item">
-      <a href="../releases/v0.2.0/" class="md-nav__link">
+      <a href="../../releases/v0.3.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.3.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.2.0/" class="md-nav__link">
         
   
   
@@ -698,7 +974,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../releases/v0.1.0/" class="md-nav__link">
+      <a href="../../releases/v0.1.0/" class="md-nav__link">
         
   
   
@@ -732,8 +1008,62 @@
   
   
   
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../development/" class="md-nav__link">
+      <a href="../../contributing/development/" class="md-nav__link">
         
   
   
@@ -749,6 +1079,14 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -807,10 +1145,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#uiforge" class="md-nav__link">
+  <a href="#lightweight-decision-helper" class="md-nav__link">
     <span class="md-ellipsis">
       
-        UIForge
+        Lightweight Decision Helper
       
     </span>
   </a>
@@ -818,10 +1156,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#omniroadmap" class="md-nav__link">
+  <a href="#systemforge-and-spicedb" class="md-nav__link">
     <span class="md-ellipsis">
       
-        OmniRoadmap
+        SystemForge and SpiceDB
       
     </span>
   </a>
@@ -829,10 +1167,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#aha-studio" class="md-nav__link">
+  <a href="#resource-mapping" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Aha Studio
+        Resource Mapping
       
     </span>
   </a>
@@ -840,32 +1178,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#visionstudio" class="md-nav__link">
+  <a href="#other-engines" class="md-nav__link">
     <span class="md-ellipsis">
       
-        VisionStudio
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dialect-names" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dialect Names
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#java-and-hibernate" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Java and Hibernate
+        Other Engines
       
     </span>
   </a>
@@ -892,54 +1208,83 @@
   
 
 
-<h1 id="integrations">Integrations<a class="headerlink" href="#integrations" title="Permanent link">&para;</a></h1>
-<p>GuardSQL is intended to be shared across Grokify and PlexusOne analytics
-products while keeping product-specific execution outside the core module.</p>
-<p>This repository is the Go engine. Integrations that require another runtime
-should live outside the root Go module. Hibernate support should be implemented
-in a Java-focused repository such as <code>github.com/grokify/guardsql-java</code> or a
-more specific <code>github.com/grokify/guardsql-hibernate</code>.</p>
-<h2 id="uiforge">UIForge<a class="headerlink" href="#uiforge" title="Permanent link">&para;</a></h2>
-<p>UIForge uses GuardSQL for Metabase-style Questions and ad-hoc analytics
-queries.</p>
-<p>The UIForge server:</p>
-<ul>
-<li>reads a neutral analytics catalog</li>
-<li>converts datasets and fields into a GuardSQL schema</li>
-<li>asks SystemForge/SpiceDB for dataset and field authorization</li>
-<li>compiles that authorization into <code>guardsql.Policy</code></li>
-<li>checks policy before saving Questions and before executing ad-hoc queries</li>
-</ul>
-<h2 id="omniroadmap">OmniRoadmap<a class="headerlink" href="#omniroadmap" title="Permanent link">&para;</a></h2>
-<p>OmniRoadmap exposes product-roadmap analytics over a DoltDB-backed store. It can
-act as a UIForge analytics provider or expose its own GuardSQL-compatible API.</p>
-<p>Recommended boundary:</p>
-<ul>
-<li>OmniRoadmap owns canonical roadmap data and tenant/product permissions.</li>
-<li>GuardSQL owns AST parsing and policy checks.</li>
-<li>UIForge owns dashboard composition and saved Questions.</li>
-</ul>
-<h2 id="aha-studio">Aha Studio<a class="headerlink" href="#aha-studio" title="Permanent link">&para;</a></h2>
-<p>Aha Studio can expose Aha-imported data through a product-specific dialect name
-such as <code>AQL</code> while reusing GuardSQL internals.</p>
-<h2 id="visionstudio">VisionStudio<a class="headerlink" href="#visionstudio" title="Permanent link">&para;</a></h2>
-<p>VisionStudio can use the same pattern as OmniRoadmap when exposing DoltDB-backed
-analytics to UIForge or other tools.</p>
-<h2 id="dialect-names">Dialect Names<a class="headerlink" href="#dialect-names" title="Permanent link">&para;</a></h2>
-<p>Product-specific dialect names such as <code>AQL</code> and <code>ORQL</code> can be useful in APIs
-and UIs, but the shared AST and policy model should remain GuardSQL-compatible.</p>
-<h2 id="java-and-hibernate">Java and Hibernate<a class="headerlink" href="#java-and-hibernate" title="Permanent link">&para;</a></h2>
-<p>Java/Hibernate should be treated as an external integration target rather than
-part of the Go engine.</p>
-<p>Recommended boundary:</p>
-<ul>
-<li>The Go engine defines the query language, AST semantics, policy model, and
-  security invariants.</li>
-<li>A Java module can implement Java-native AST bindings, Criteria/Hibernate
-  compilation, and JVM package conventions.</li>
-<li>Cross-runtime compatibility should use documented AST/policy semantics and
-  conformance tests instead of importing JVM dependencies into the Go module.</li>
-</ul>
+<h1 id="authorization">Authorization<a class="headerlink" href="#authorization" title="Permanent link">&para;</a></h1>
+<p>The root GuardSQL module does not import concrete authorization engines. It
+defines AST and policy primitives. Host applications decide how to authorize
+principals and may compile those decisions into <code>guardsql.Policy</code>.</p>
+<h2 id="lightweight-decision-helper">Lightweight Decision Helper<a class="headerlink" href="#lightweight-decision-helper" title="Permanent link">&para;</a></h2>
+<p>The <code>authz</code> package defines a small decision shape:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nx">decision</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">authz</span><span class="p">.</span><span class="nx">Decision</span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nx">AllowedEntities</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;roadmap_items&quot;</span><span class="p">},</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nx">Fields</span><span class="p">:</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">guardsql</span><span class="p">.</span><span class="nx">FieldPolicy</span><span class="p">{</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="s">&quot;roadmap_items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">            </span><span class="s">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nx">Selectable</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Filterable</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">Sortable</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">},</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nx">MaxDepth</span><span class="p">:</span><span class="w">    </span><span class="mi">8</span><span class="p">,</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nx">MaxNodes</span><span class="p">:</span><span class="w">    </span><span class="mi">80</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="nx">MaxInValues</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">}</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="nx">policy</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">authz</span><span class="p">.</span><span class="nx">PolicyFromDecision</span><span class="p">(</span><span class="nx">decision</span><span class="p">)</span>
+</code></pre></div>
+<p>External engines should produce decisions from trusted application context, not
+from user-authored query text.</p>
+<h2 id="systemforge-and-spicedb">SystemForge and SpiceDB<a class="headerlink" href="#systemforge-and-spicedb" title="Permanent link">&para;</a></h2>
+<p>SystemForge integration lives in the optional nested module:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>go<span class="w"> </span>get<span class="w"> </span>github.com/grokify/guardsql/authzsystemforge
+</code></pre></div>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nx">policy</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">authzsystemforge</span><span class="p">.</span><span class="nx">PolicyBuilder</span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nx">Authorizer</span><span class="p">:</span><span class="w"> </span><span class="nx">provider</span><span class="p">,</span><span class="w"> </span><span class="c1">// systemforge/authz.Authorizer</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nx">Principal</span><span class="p">:</span><span class="w">  </span><span class="nx">authz</span><span class="p">.</span><span class="nx">NewUserPrincipal</span><span class="p">(</span><span class="nx">userID</span><span class="p">),</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nx">Schema</span><span class="p">:</span><span class="w">     </span><span class="nx">schema</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nx">ResourceBuilder</span><span class="p">:</span><span class="w"> </span><span class="nx">myResourceBuilder</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nx">MaxDepth</span><span class="p">:</span><span class="w">   </span><span class="mi">8</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nx">MaxNodes</span><span class="p">:</span><span class="w">   </span><span class="mi">80</span><span class="p">,</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">}.</span><span class="nx">Build</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+</code></pre></div>
+<p>The adapter checks:</p>
+<table>
+<thead>
+<tr>
+<th>GuardSQL use</th>
+<th>SystemForge action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Entity read</td>
+<td><code>read</code></td>
+</tr>
+<tr>
+<td>Select field</td>
+<td><code>read</code></td>
+</tr>
+<tr>
+<td>Filter field</td>
+<td><code>list</code></td>
+</tr>
+<tr>
+<td>Sort/group field</td>
+<td><code>sort</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="resource-mapping">Resource Mapping<a class="headerlink" href="#resource-mapping" title="Permanent link">&para;</a></h2>
+<p>Production SpiceDB deployments should provide a custom resource builder so
+query entities and fields map to concrete product resources:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>analytics_dataset:&lt;dataset_id&gt;
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>analytics_field:&lt;field_id&gt;
+</code></pre></div>
+<p>Attribute-only resources are useful for tests and examples, but SystemForge's
+SpiceDB provider checks concrete type/id/permission tuples.</p>
+<h2 id="other-engines">Other Engines<a class="headerlink" href="#other-engines" title="Permanent link">&para;</a></h2>
+<p>Cedar, Rego, SpiceDB, Casbin, or custom RBAC engines can all be used by
+compiling their decisions into <code>guardsql.Policy</code>.</p>
+<p>Keep heavyweight engine dependencies outside the root module. Use optional
+subpackages or nested modules when an integration needs non-trivial dependency
+graphs.</p>
 
 
 
@@ -995,10 +1340,10 @@ part of the Go engine.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
