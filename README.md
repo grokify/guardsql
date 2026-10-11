@@ -346,7 +346,7 @@ GuardSQL entities and fields map to concrete product resources such as
 
 ## Documentation
 
-This repo includes a MkDocs site in `docs/` (user guides in `docs/guides/`, release notes in `docs/releases/`).
+This repo includes a MkDocs site in `docs/` (user guides in `docs/guides/`, contributor docs in `docs/contributing/`, release notes in `docs/releases/`).
 
 ```bash
 mkdocs serve
