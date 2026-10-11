@@ -26,9 +26,18 @@
 
 GuardSQL is a small, application-neutral query language for Grokify analytics services. It is intended to provide a Jira Query Language style interface for SaaS reporting without passing customer-authored SQL directly to databases.
 
-This repository is the Go engine for GuardSQL: parser, AST, schema validation, policy checks, lightweight authorization adapters, and backend compiler contracts. Runtime integrations for other language stacks should live in separate repositories or modules.
+This repository is the Go engine for GuardSQL: parser, AST, schema validation, policy checks, a built-in SQL compiler (SQLite/PostgreSQL/MySQL with JSON extraction), a trusted mutation builder, and lightweight authorization adapters. Runtime integrations for other language stacks should live in separate repositories or modules.
 
-The core contract is a parser that converts user-authored text into Go structs. Applications should pass the parsed AST through schema validation, static lint policy, and backend-specific compilers. The original text should not be executed directly.
+GuardSQL is a **transpiler**: untrusted SQL in, trusted parameterized SQL out. It parses user-authored text into a Go AST, validates and policy-checks that AST, then **regenerates** dialect-specific parameterized SQL from it. The original text is never executed — only constructs the AST can represent and the compiler knows how to emit can reach the database, which makes the accepted surface default-deny by construction.
+
+```text
+query text -> parse -> validate -> policy -> compile -> parameterized SQL + args
+```
+
+For an end-to-end walkthrough (schema, untrusted analytics with row scope, and
+trusted mutations), see [Getting Started](docs/getting-started.md); for why the
+model is secure and what the host must still enforce, see
+[Security Hardening](docs/security-hardening.md).
 
 ## Scope
 
@@ -65,7 +74,93 @@ Supported aggregate functions:
 
 The in-memory evaluator supports filters, grouping, aggregates, `HAVING`, ordering, limits, and projection for single-source queries. Joins, CTEs, and nested query sources are represented in the AST and should be executed by backend-specific compilers. Self joins are represented as normal joins and require aliases on both sources.
 
-Future parsers may support create, update, or delete operations. Those operations are represented explicitly in the AST and must be allowed by policy before execution.
+## Compiling to SQL
+
+GuardSQL ships a compiler that transpiles a validated AST into parameterized,
+dialect-specific SQL (SQLite, PostgreSQL, MySQL/Dolt). Values become bind
+parameters; identifiers are re-resolved against the schema and re-quoted.
+
+```go
+out, err := guardsql.Compile(q, guardsql.CompileOptions{
+    Dialect: guardsql.DialectPostgres, Schema: schema, StrictIdentifiers: true,
+})
+// out.SQL, out.Args -> db.Query(out.SQL, out.Args...)
+```
+
+A `FieldJSON` column can be addressed with a dotted path, compiled to
+dialect-specific JSON extraction:
+
+```sql
+SELECT payload.finding_info.title AS t, count(*) AS n
+FROM events GROUP BY payload.finding_info.title
+-- SQLite: json_extract("payload", ?) ...  args: ["$.finding_info.title", ...]
+```
+
+See the [SQL Compiler](docs/compiler.md) docs.
+
+## Config & Trust Modes
+
+`Config` is the recommended entry point: parse → validate → policy → compile in
+one call, with secure defaults. The same engine serves customer-supplied SQL and
+internal application SQL through two profiles:
+
+```go
+// Customer SQL: read-only, secret/PII columns stripped, identifiers locked, LIMIT required.
+cfg := guardsql.NewUntrustedConfig(schema, guardsql.DialectSQLite)
+out, err := cfg.Compile(customerQuery)
+
+// Internal SQL: reads + mutations, full column access, still parameterized and locked.
+tcfg := guardsql.NewTrustedConfig(schema, guardsql.DialectPostgres)
+```
+
+Each schema field carries a data classification — `ClassPublic` (default),
+`ClassPII`, `ClassInternal`, or `ClassSecret`. Classified columns are stripped
+from the effective schema unless `AllowPII` / `AllowInternal` / `AllowSecret`
+are set, so an untrusted query that references one fails as an unknown field.
+See [Config & Trust Modes](docs/trust-modes.md).
+
+The recommended source of classification is a
+[`datacatalog`](https://github.com/grokify/datacatalog) catalog:
+
+```go
+schema, err := guardsql.FromCatalog(catalog) // validates, then maps visibility/pii/secret
+cfg := guardsql.NewUntrustedConfig(schema, guardsql.DialectPostgres)
+```
+
+`Field.Class` remains settable by hand. See
+[Schema from a Data Catalog](docs/catalog-schema.md).
+
+For tenant/ownership isolation (IDOR defense), `Config.RowScope` injects a
+mandatory, app-supplied predicate as a top-level `AND` on every compiled
+SELECT/UPDATE/DELETE, so no user `WHERE` can widen scope; `RequireRowScope`
+makes unscoped access fail closed. See
+[Row Scope](docs/trust-modes.md#row-scope-tenant--idor-isolation).
+
+## Identifier Safety
+
+Table and column names cannot be bound as parameters, so GuardSQL restricts them
+to the unquoted identifier charset by default. `IsSafeIdentifier` and
+`Schema.ValidateIdentifiers()` reject quotes, whitespace, `;`, `--`, and
+non-ASCII homoglyphs before any SQL is emitted, making identifier-based injection
+structurally impossible. Set `AllowUnsafeIdentifiers` only for a database that
+relies on quoted identifiers.
+
+## Mutations
+
+Trusted, application-authored mutations use a programmatic builder — no mutation
+text is parsed. They are deny-by-default (the operation must be allowed by
+policy) and require a `WHERE` on UPDATE/DELETE unless
+`AllowUnfilteredMutations` is set.
+
+```go
+guardsql.Update("users").
+    Set("status", "active").
+    Where(guardsql.Eq("id", 42)).
+    Compile(tcfg)
+// UPDATE "users" SET "status" = $1 WHERE "id" = $2   args: ["active", 42]
+```
+
+See [Mutations](docs/mutations.md).
 
 ## Formatting
 
@@ -166,9 +261,9 @@ if issues := guardsql.CheckAnalysisPolicy(analysis, policy); len(issues) > 0 {
 
 ## Security Model
 
-GuardSQL should not be executed as SQL. Applications parse it into an AST, validate that AST against an allowlisted schema, then compile it into backend-specific parameterized queries, Ent predicates, API filters, or in-memory filters. Tenant scope and authorization should be injected by the hosting service, not trusted from the user query.
+GuardSQL is never executed as SQL. Applications parse it into an AST, validate that AST against an allowlisted schema, then compile it — with the built-in compiler or a backend-specific one — into parameterized queries, Ent predicates, API filters, or in-memory filters. Tenant scope and authorization should be injected by the hosting service, not trusted from the user query.
 
-Input that does not parse is a normal syntax error, not an injection. Injection resistance comes from never executing the original string as SQL and from only compiling validated AST nodes to parameterized backend calls.
+Input that does not parse is a normal syntax error, not an injection. Injection resistance comes from never executing the original string as SQL and from only compiling validated AST nodes to parameterized backend calls. The built-in compiler additionally binds every value as a parameter and locks identifiers to a safe charset (see Identifier Safety above).
 
 For multi-tenant SaaS services, treat the AST as the trust boundary:
 
@@ -181,6 +276,42 @@ For multi-tenant SaaS services, treat the AST as the trust boundary:
 - Use least-privileged read-only database roles, row-level security or approved
   tenant-scoped views, and deny database file/network/procedure/extension
   privileges for customer query execution.
+
+## Attack Coverage
+
+Strength ratings assume the compiled path (`Compile` / `Config.Compile`). Using
+GuardSQL only as a parse/policy gate and then executing the original text
+verbatim weakens the injection guarantees to whatever the parser rejects.
+
+- **Strong** — prevented by construction.
+- **Partial** — reduced at the language layer; close fully with host/database controls.
+- **Shared** — GuardSQL enforces a decision the application must make.
+- **App-layer** — outside GuardSQL's scope.
+
+| Attack class | Strength | GuardSQL posture |
+|--------------|----------|------------------|
+| SQL injection — values | Strong | Every literal is a bind parameter; values are never concatenated into SQL. |
+| SQL injection — identifiers | Strong | Table/column names must resolve to a schema field and pass `IsSafeIdentifier`, then are quoted per dialect. |
+| Blind / boolean / timing injection | Strong | Parameterized values plus no scalar functions or arithmetic in the grammar leave no oracle to build. |
+| Stacked queries, DDL, procedures, file/network access | Strong | Not representable in the AST, so the compiler cannot emit them. |
+| Unicode / homoglyph identifier spoofing | Strong | `IsSafeIdentifier` is ASCII-only and rejects non-identifier characters. |
+| Second-order injection | App-layer | Values are stored safely as parameters; if other code later concatenates a stored value into SQL, that path is outside GuardSQL. |
+| Query-complexity denial of service | Partial | Policy bounds depth, node count, `IN` size, `LIMIT`, and select/join/group/CTE counts; expensive-but-legal queries still need DB timeouts, row caps, and a least-privileged role. |
+| Column-level data exposure (secrets / PII) | Strong | Entity/field allowlist plus `ClassSecret`/`ClassInternal`/`ClassPII` stripping; denied columns read as "unknown field" without disclosing they exist. |
+| Mass assignment via mutations | Strong | Assignment targets must be columns explicitly marked `Writable` in the schema (deny-by-default), so a caller cannot write a column such as `role` or `is_admin` unless permitted; mutations are also trusted-only and reject unknown columns. |
+| Full-table `UPDATE` / `DELETE` | Strong | A `WHERE` clause is required by default; unfiltered mutations are refused unless explicitly allowed. |
+| Error-based information disclosure | Strong | Errors are structural; denied/secret columns surface as unknown fields rather than confirming existence. |
+| Broken object-level authorization (IDOR) | Strong&nbsp;* | The app supplies the trusted scope (session principal → row filter); GuardSQL injects it as a mandatory top-level `AND` on every SELECT/UPDATE/DELETE via `RowScope`, so no user `WHERE` can widen it. `RequireRowScope` makes unscoped access refuse to compile (fail-closed). |
+| Multi-tenant data leakage | Strong&nbsp;* | Same mechanism: a forced `tenant_id` predicate is ANDed into every statement, and per-tenant schemas add column-level isolation. |
+| Authorization bypass | Shared | External authz engines compile decisions into `guardsql.Policy` (`authz.PolicyFromDecision`); GuardSQL enforces the compiled decision against the AST. |
+
+\* Strong **when the application configures `RowScope`** from trusted session
+context — GuardSQL enforces the scope but cannot know the session tenant/owner
+on its own. Without it, row-level isolation is not enforced.
+
+The database account remains the final boundary for resource and RCE risk: run
+untrusted queries against a read-only, least-privileged identity with row-level
+security or approved tenant-scoped views.
 
 ## Authorization Engines
 
