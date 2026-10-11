@@ -130,12 +130,23 @@ Behavior:
   configured, so no query is ever unscoped by omission.
 - **Mutations too.** `RowScope` is ANDed into UPDATE/DELETE `WHERE` (in addition
   to the required user filter), so a trusted mutation cannot touch another
-  tenant's rows.
+  tenant's rows. On INSERT the scope's equality terms are stamped onto the new
+  row (see below).
+- **Hidden scope columns.** The scope predicate resolves against the full
+  schema, so it may reference a column the caller cannot see, such as an
+  internal-class `tenant_id`. The user's own query still cannot select or filter
+  on that column.
+- **Scope columns are not assignable.** `Insert` and `Update` reject an
+  assignment to any column referenced by the scope, even if it is `Writable`, so
+  a row cannot be created in or moved to another scope.
 
 `RowScope` is per-request session state and is not serialized with `Config`.
 Combine it with per-tenant schemas (column isolation) and database row-level
 security (a final backstop) for defense in depth.
 
 !!! note "INSERT"
-    Row scope is `WHERE`-based, so it does not apply to INSERT. Trusted code
-    should set the tenant/owner column explicitly on insert.
+    An INSERT has no `WHERE`, so the scope is applied by stamping: each equality
+    term of the scope (`tenant_id = 5`, or an `And` of equalities) is added as a
+    column/value pair. A scope that is not a conjunction of equalities (for
+    example `IN` or `OR`) cannot be stamped, so the INSERT is refused rather than
+    written unscoped. An entity the scope exempts is inserted unchanged.

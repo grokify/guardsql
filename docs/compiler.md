@@ -106,7 +106,21 @@ compiles to:
 
 JSON path segments may be numeric to address array elements (for example
 `resources.0.uid`). JSON values are treated as dynamically typed, so static
-value-type checks are relaxed for path references.
+value-type checks are relaxed for path references. Path segments are limited
+to ASCII letters, digits, and underscore, matching identifier lockdown.
+
+Postgres extracts JSON values as text, so the compiler casts the extraction to
+match the query: a numeric literal in a comparison (or `SUM`/`AVG`) casts to
+`numeric`, and a boolean literal casts to `boolean`. String comparisons and
+`MIN`/`MAX` are left as text.
+
+```sql
+WHERE (jsonb_extract_path_text("payload"::jsonb, $1))::numeric > $2
+```
+
+SQLite and MySQL coerce implicitly and need no cast. In Postgres, a JSON value
+that is not convertible to the target type makes the query fail at execution
+time; filter such rows out or keep the path's type consistent in your data.
 
 ## Supported Query Shape
 

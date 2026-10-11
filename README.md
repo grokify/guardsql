@@ -132,8 +132,9 @@ cfg := guardsql.NewUntrustedConfig(schema, guardsql.DialectPostgres)
 
 For tenant/ownership isolation (IDOR defense), `Config.RowScope` injects a
 mandatory, app-supplied predicate as a top-level `AND` on every compiled
-SELECT/UPDATE/DELETE, so no user `WHERE` can widen scope; `RequireRowScope`
-makes unscoped access fail closed. See
+SELECT/UPDATE/DELETE and is stamped onto INSERTs, so no user `WHERE` can widen
+scope and scope columns cannot be reassigned; `RequireRowScope` makes unscoped
+access fail closed. See
 [Row Scope](docs/trust-modes.md#row-scope-tenant--idor-isolation).
 
 ## Identifier Safety
