@@ -139,3 +139,113 @@ func TestScopeAppliedToMutations(t *testing.T) {
 		t.Errorf("DELETE:\n got %s\nwant %s", del.SQL, wantDel)
 	}
 }
+
+// internalTenantSchema hides tenant_id from callers (ClassInternal) while the
+// scope still needs to reference it.
+func internalTenantSchema() guardsql.Schema {
+	f := func(t guardsql.FieldType, class guardsql.DataClass, w bool) guardsql.Field {
+		return guardsql.Field{Type: t, Selectable: true, Filterable: true, Sortable: true, Writable: w, Class: class}
+	}
+	return guardsql.Schema{Entities: map[string]guardsql.Entity{
+		"events": {Name: "events", Fields: map[string]guardsql.Field{
+			"id":        f(guardsql.FieldNumber, guardsql.ClassPublic, false),
+			"status":    f(guardsql.FieldString, guardsql.ClassPublic, true),
+			"tenant_id": f(guardsql.FieldNumber, guardsql.ClassInternal, true),
+		}},
+	}}
+}
+
+func TestScopeMayReferenceHiddenColumn(t *testing.T) {
+	cfg := guardsql.NewUntrustedConfig(internalTenantSchema(), guardsql.DialectPostgres)
+	cfg.RowScope = guardsql.ScopeEquals("tenant_id", 5)
+
+	out, err := cfg.Compile(`SELECT id FROM events LIMIT 10`)
+	if err != nil {
+		t.Fatalf("Compile: %v", err)
+	}
+	want := `SELECT "id" FROM "events" WHERE "tenant_id" = $1 LIMIT 10`
+	if out.SQL != want {
+		t.Errorf("SQL:\n got %s\nwant %s", out.SQL, want)
+	}
+	// The user still cannot see or filter on the hidden column.
+	if _, err := cfg.Compile(`SELECT id FROM events WHERE tenant_id = 6 LIMIT 10`); err == nil {
+		t.Error("user query referenced a hidden scope column")
+	}
+	if _, err := cfg.Compile(`SELECT tenant_id FROM events LIMIT 10`); err == nil {
+		t.Error("user query selected a hidden scope column")
+	}
+}
+
+func TestInsertStampsRowScope(t *testing.T) {
+	cfg := guardsql.NewTrustedConfig(scopeSchema(), guardsql.DialectPostgres)
+	cfg.RowScope = guardsql.ScopeEquals("tenant_id", 5)
+
+	out, err := guardsql.Insert("events").Set("status", "open").Compile(cfg)
+	if err != nil {
+		t.Fatalf("Insert: %v", err)
+	}
+	want := `INSERT INTO "events" ("status", "tenant_id") VALUES ($1, $2)`
+	if out.SQL != want {
+		t.Errorf("SQL:\n got %s\nwant %s", out.SQL, want)
+	}
+	if !reflect.DeepEqual(out.Args, []any{"open", int64(5)}) {
+		t.Errorf("args = %#v", out.Args)
+	}
+}
+
+func TestInsertRejectsScopeColumnAssignment(t *testing.T) {
+	// tenant_id is Writable here, so only the scope guard stops the write.
+	cfg := guardsql.NewTrustedConfig(internalTenantSchema(), guardsql.DialectPostgres)
+	cfg.RowScope = guardsql.ScopeEquals("tenant_id", 5)
+
+	if _, err := guardsql.Insert("events").Set("status", "open").Set("tenant_id", 6).Compile(cfg); err == nil {
+		t.Error("INSERT assigned the scope column")
+	}
+}
+
+func TestUpdateRejectsScopeColumnAssignment(t *testing.T) {
+	cfg := guardsql.NewTrustedConfig(internalTenantSchema(), guardsql.DialectPostgres)
+	cfg.RowScope = guardsql.ScopeEquals("tenant_id", 5)
+
+	_, err := guardsql.Update("events").Set("tenant_id", 6).Where(guardsql.Eq("id", 1)).Compile(cfg)
+	if err == nil {
+		t.Error("UPDATE moved a row out of scope")
+	}
+	// Other columns still update, with the hidden scope column in the WHERE.
+	out, err := guardsql.Update("events").Set("status", "closed").Where(guardsql.Eq("id", 1)).Compile(cfg)
+	if err != nil {
+		t.Fatalf("Update: %v", err)
+	}
+	want := `UPDATE "events" SET "status" = $1 WHERE ("id" = $2 AND "tenant_id" = $3)`
+	if out.SQL != want {
+		t.Errorf("SQL:\n got %s\nwant %s", out.SQL, want)
+	}
+}
+
+func TestInsertRefusesNonEqualityScope(t *testing.T) {
+	cfg := guardsql.NewTrustedConfig(scopeSchema(), guardsql.DialectPostgres)
+	cfg.RowScope = func(string) (guardsql.Expr, error) {
+		return guardsql.In("tenant_id", 5, 6), nil
+	}
+	if _, err := guardsql.Insert("events").Set("status", "open").Compile(cfg); err == nil {
+		t.Error("INSERT must refuse a scope it cannot stamp")
+	}
+}
+
+func TestInsertExemptEntityUnscoped(t *testing.T) {
+	cfg := guardsql.NewTrustedConfig(scopeSchema(), guardsql.DialectPostgres)
+	cfg.RowScope = func(entity string) (guardsql.Expr, error) {
+		if entity == "regions" {
+			return nil, nil
+		}
+		return guardsql.Eq("tenant_id", 5), nil
+	}
+	cfg.Schema.Entities["regions"].Fields["name"] = guardsql.Field{Type: guardsql.FieldString, Selectable: true, Writable: true}
+	out, err := guardsql.Insert("regions").Set("name", "emea").Compile(cfg)
+	if err != nil {
+		t.Fatalf("Insert: %v", err)
+	}
+	if want := `INSERT INTO "regions" ("name") VALUES ($1)`; out.SQL != want {
+		t.Errorf("SQL:\n got %s\nwant %s", out.SQL, want)
+	}
+}

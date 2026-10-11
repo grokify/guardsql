@@ -53,6 +53,12 @@ func (b *InsertBuilder) Compile(cfg Config) (CompiledSQL, error) {
 		cols = append(cols, col)
 		phs = append(phs, m.c.bind(a.Value))
 	}
+	scopeCols, scopePhs, err := m.insertScope()
+	if err != nil {
+		return CompiledSQL{}, err
+	}
+	cols = append(cols, scopeCols...)
+	phs = append(phs, scopePhs...)
 	sql := "INSERT INTO " + m.table + " (" + strings.Join(cols, ", ") + ") VALUES (" + strings.Join(phs, ", ") + ")"
 	return CompiledSQL{SQL: sql, Args: m.c.args}, nil
 }
@@ -101,16 +107,12 @@ func (b *UpdateBuilder) Compile(cfg Config) (CompiledSQL, error) {
 		assigns = append(assigns, col+" = "+m.c.bind(a.Value))
 	}
 	sql := "UPDATE " + m.table + " SET " + strings.Join(assigns, ", ")
-	scope, err := resolveScope(cfg.RowScope, cfg.RequireRowScope, m.ent.Name)
+	where, err := m.c.scopedWhere(b.where, m.ent, m.scope, m.scopeEnt)
 	if err != nil {
 		return CompiledSQL{}, err
 	}
-	if where := andExpr(b.where, scope); where != nil {
-		clause, err := m.c.expr(where, m.ent)
-		if err != nil {
-			return CompiledSQL{}, err
-		}
-		sql += " WHERE " + clause
+	if where != "" {
+		sql += " WHERE " + where
 	}
 	return CompiledSQL{SQL: sql, Args: m.c.args}, nil
 }
@@ -140,25 +142,24 @@ func (b *DeleteBuilder) Compile(cfg Config) (CompiledSQL, error) {
 		return CompiledSQL{}, err
 	}
 	sql := "DELETE FROM " + m.table
-	scope, err := resolveScope(cfg.RowScope, cfg.RequireRowScope, m.ent.Name)
+	where, err := m.c.scopedWhere(b.where, m.ent, m.scope, m.scopeEnt)
 	if err != nil {
 		return CompiledSQL{}, err
 	}
-	if where := andExpr(b.where, scope); where != nil {
-		clause, err := m.c.expr(where, m.ent)
-		if err != nil {
-			return CompiledSQL{}, err
-		}
-		sql += " WHERE " + clause
+	if where != "" {
+		sql += " WHERE " + where
 	}
 	return CompiledSQL{SQL: sql, Args: m.c.args}, nil
 }
 
 // mutationCompiler holds the shared setup for compiling one mutation.
 type mutationCompiler struct {
-	c     *compiler
-	ent   Entity
-	table string // quoted table identifier
+	c        *compiler
+	ent      Entity
+	scopeEnt Entity // entity the row-scope predicate resolves against
+	scope    Expr   // mandatory row-scope predicate, or nil
+	scopeCol map[string]bool
+	table    string // quoted table identifier
 }
 
 func newMutationCompiler(cfg Config, op Operation, table string) (*mutationCompiler, error) {
@@ -178,11 +179,91 @@ func newMutationCompiler(cfg Config, op Operation, table string) (*mutationCompi
 			return nil, err
 		}
 	}
-	ent, ok := schema.Entities[strings.ToLower(strings.TrimSpace(table))]
+	key := strings.ToLower(strings.TrimSpace(table))
+	ent, ok := schema.Entities[key]
 	if !ok {
 		return nil, fmt.Errorf("guardsql: unknown entity %q", table)
 	}
-	return &mutationCompiler{c: &compiler{d: d}, ent: ent, table: d.quoteIdent(ent.Name)}, nil
+	scope, err := resolveScope(cfg.RowScope, cfg.RequireRowScope, ent.Name)
+	if err != nil {
+		return nil, err
+	}
+	// The scope resolves against the full schema so it may reference a column
+	// the effective schema hides (for example an internal-class tenant_id).
+	scopeEnt, err := scopeEntity(cfg.Schema, key, ent, !cfg.AllowUnsafeIdentifiers)
+	if err != nil {
+		return nil, err
+	}
+	m := &mutationCompiler{c: &compiler{d: d}, ent: ent, scopeEnt: scopeEnt, scope: scope, scopeCol: map[string]bool{}, table: d.quoteIdent(ent.Name)}
+	collectScopeColumns(scope, scopeEnt, m.scopeCol)
+	return m, nil
+}
+
+// collectScopeColumns records the base column of every field the scope
+// predicate references.
+func collectScopeColumns(e Expr, ent Entity, out map[string]bool) {
+	switch x := e.(type) {
+	case *LogicalExpr:
+		collectScopeColumns(x.Left, ent, out)
+		collectScopeColumns(x.Right, ent, out)
+	case *NotExpr:
+		collectScopeColumns(x.Expr, ent, out)
+	case *CompareExpr:
+		if ref, ok := resolveField(ent, x.Field, nil); ok {
+			out[ref.Name] = true
+		} else {
+			out[strings.ToLower(strings.TrimSpace(x.Field))] = true
+		}
+	}
+}
+
+// scopeEqualities flattens a scope predicate that is a conjunction of
+// single-value equalities. Anything else cannot be turned into column values.
+func scopeEqualities(e Expr) ([]*CompareExpr, bool) {
+	switch x := e.(type) {
+	case *CompareExpr:
+		if x.Op == OpEq && len(x.Values) == 1 {
+			return []*CompareExpr{x}, true
+		}
+	case *LogicalExpr:
+		if x.Op != LogicalAnd {
+			return nil, false
+		}
+		l, ok := scopeEqualities(x.Left)
+		if !ok {
+			return nil, false
+		}
+		r, ok := scopeEqualities(x.Right)
+		if !ok {
+			return nil, false
+		}
+		return append(l, r...), true
+	}
+	return nil, false
+}
+
+// insertScope returns the extra INSERT columns and placeholders that stamp the
+// row scope onto a new row, so an INSERT cannot create a row outside the
+// caller's scope. A scope that is not a conjunction of equalities (for example
+// an IN or OR) cannot be stamped, so the INSERT is refused rather than written
+// unscoped.
+func (m *mutationCompiler) insertScope() (cols, phs []string, err error) {
+	if m.scope == nil {
+		return nil, nil, nil
+	}
+	eqs, ok := scopeEqualities(m.scope)
+	if !ok {
+		return nil, nil, fmt.Errorf("guardsql: row scope for entity %q is not a conjunction of equalities and cannot be applied to INSERT", m.ent.Name)
+	}
+	for _, eq := range eqs {
+		ref, ok := resolveField(m.scopeEnt, eq.Field, nil)
+		if !ok || ref.IsJSONPath() {
+			return nil, nil, fmt.Errorf("guardsql: row scope column %q cannot be applied to INSERT", eq.Field)
+		}
+		cols = append(cols, m.c.d.quoteIdent(ref.Name))
+		phs = append(phs, m.c.bind(valueArg(eq.Values[0])))
+	}
+	return cols, phs, nil
 }
 
 // column resolves and quotes a plain assignable column. It rejects unknown
@@ -199,6 +280,11 @@ func (m *mutationCompiler) column(name string) (string, error) {
 	}
 	if !ref.Field.Writable {
 		return "", fmt.Errorf("guardsql: column %q is not writable", name)
+	}
+	// A scope column is owned by the row scope: letting a caller assign it
+	// would allow writing a row into, or moving a row out of, another scope.
+	if m.scopeCol[ref.Name] {
+		return "", fmt.Errorf("guardsql: column %q is controlled by the row scope and cannot be assigned", name)
 	}
 	return m.c.d.quoteIdent(ref.Name), nil
 }

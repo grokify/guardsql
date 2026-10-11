@@ -32,6 +32,12 @@ type CompileOptions struct {
 	// columns. Required: the compiler emits only identifiers present in the
 	// schema, so an unknown field is an error rather than passthrough.
 	Schema Schema
+	// ScopeSchema, when set, is the schema used to resolve the columns of the
+	// RowScope predicate. It lets a scope reference a column that Schema hides
+	// from the caller (for example an internal-class tenant_id). It defaults to
+	// Schema. Only the scope predicate resolves against it; the user's query
+	// never does. Config sets it to the full, unstripped schema.
+	ScopeSchema Schema
 	// StrictIdentifiers, when true, requires every schema identifier to be a
 	// safe unquoted identifier (see IsSafeIdentifier) before any SQL is emitted.
 	// Because identifiers cannot be parameterized, this makes identifier-based
@@ -70,16 +76,51 @@ func resolveScope(rowScope ScopeFunc, required bool, entity string) (Expr, error
 	return rowScope(entity)
 }
 
-// andExpr combines a user filter with a mandatory scope predicate at the top
-// level, so the scope cannot be widened by any user-supplied boolean structure.
-func andExpr(userWhere, scope Expr) Expr {
-	switch {
-	case scope == nil:
-		return userWhere
-	case userWhere == nil:
-		return scope
+// scopeEntity returns the entity used to resolve row-scope columns: the entity
+// of the same name in the scope schema when one is provided, otherwise the
+// queried entity. With strict set, the entity's identifiers are validated.
+func scopeEntity(scopeSchema Schema, key string, fallback Entity, strict bool) (Entity, error) {
+	ent := fallback
+	if len(scopeSchema.Entities) > 0 {
+		if e, ok := scopeSchema.Normalize().Entities[key]; ok {
+			ent = e
+		}
+	}
+	if strict {
+		if err := (Schema{Entities: map[string]Entity{key: ent}}).ValidateIdentifiers(); err != nil {
+			return Entity{}, err
+		}
+	}
+	return ent, nil
+}
+
+// scopedWhere compiles a user filter and a mandatory scope predicate, joined by
+// a top-level AND so no user-supplied boolean structure can widen the scope.
+// The user filter resolves against userEnt and the scope against scopeEnt; the
+// user filter's parameters are bound first.
+func (c *compiler) scopedWhere(user Expr, userEnt Entity, scope Expr, scopeEnt Entity) (string, error) {
+	var parts []string
+	if user != nil {
+		clause, err := c.expr(user, userEnt)
+		if err != nil {
+			return "", err
+		}
+		parts = append(parts, clause)
+	}
+	if scope != nil {
+		clause, err := c.expr(scope, scopeEnt)
+		if err != nil {
+			return "", err
+		}
+		parts = append(parts, clause)
+	}
+	switch len(parts) {
+	case 0:
+		return "", nil
+	case 1:
+		return parts[0], nil
 	default:
-		return &LogicalExpr{Op: LogicalAnd, Left: userWhere, Right: scope}
+		return "(" + parts[0] + " AND " + parts[1] + ")", nil
 	}
 }
 
@@ -133,13 +174,17 @@ func Compile(q *Query, opts CompileOptions) (CompiledSQL, error) {
 	if err != nil {
 		return CompiledSQL{}, err
 	}
-	if where := andExpr(q.Where, scope); where != nil {
-		clause, err := c.expr(where, ent)
-		if err != nil {
-			return CompiledSQL{}, err
-		}
+	scopeEnt, err := scopeEntity(opts.ScopeSchema, strings.ToLower(strings.TrimSpace(q.From)), ent, opts.StrictIdentifiers)
+	if err != nil {
+		return CompiledSQL{}, err
+	}
+	where, err := c.scopedWhere(q.Where, ent, scope, scopeEnt)
+	if err != nil {
+		return CompiledSQL{}, err
+	}
+	if where != "" {
 		b.WriteString(" WHERE ")
-		b.WriteString(clause)
+		b.WriteString(where)
 	}
 
 	if len(q.GroupBy) > 0 {

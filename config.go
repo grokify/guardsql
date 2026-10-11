@@ -166,6 +166,7 @@ func (c Config) Compile(input string) (CompiledSQL, error) {
 	return Compile(q, CompileOptions{
 		Dialect:           c.Dialect,
 		Schema:            c.effectiveSchema(),
+		ScopeSchema:       c.Schema,
 		StrictIdentifiers: !c.AllowUnsafeIdentifiers,
 		RowScope:          c.RowScope,
 		RequireRowScope:   c.RequireRowScope,
