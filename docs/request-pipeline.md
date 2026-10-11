@@ -70,16 +70,28 @@ For relationship-aware systems such as SpiceDB, prefer authorizing the
 
 ## Compile
 
-Compile only validated and policy-approved AST nodes. Backend compilers may
-target:
+Compile only validated and policy-approved AST nodes into parameterized SQL. The
+built-in [compiler](compiler.md) targets SQLite, PostgreSQL, and MySQL and binds
+every value and locks every identifier:
 
-- parameterized SQL
-- Ent predicates
-- API filters
-- in-memory filters
-- domain-specific query providers
+```go
+out, err := guardsql.Compile(q, guardsql.CompileOptions{Dialect: guardsql.DialectPostgres, Schema: schema})
+```
 
-Never compile by concatenating user-authored text.
+Other backends (Ent predicates, API filters, in-memory filters, domain-specific
+providers) can compile the same AST. Never compile by concatenating
+user-authored text.
+
+## One-Step Config
+
+`Config` runs Validate → Policy → Compile in a single call with secure defaults,
+and is the recommended entry point for most applications:
+
+```go
+out, err := guardsql.NewUntrustedConfig(schema, guardsql.DialectPostgres).Compile(input)
+```
+
+See [Config & Trust Modes](trust-modes.md).
 
 ## Execute
 

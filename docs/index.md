@@ -7,12 +7,16 @@ SQL directly to a database.
 The core contract is:
 
 ```text
-query text -> parser -> AST -> schema validation -> policy -> backend compiler
+query text -> parse -> validate -> policy -> compile -> parameterized SQL + args
 ```
 
-Applications own tenant scope, authorization, execution limits, audit logging,
-and backend compilation. GuardSQL owns parsing, AST types, validation helpers,
-policy checks, and a limited in-memory evaluator for simple cases.
+Untrusted SQL in, trusted SQL out: GuardSQL parses customer text into an AST,
+validates and policy-checks it, then **regenerates** parameterized,
+dialect-specific SQL from the AST — the original text is never executed.
+GuardSQL owns parsing, AST types, validation, policy checks, a built-in SQL
+compiler (SQLite/PostgreSQL/MySQL with JSON extraction), a trusted mutation
+builder, and a limited in-memory evaluator. Applications own tenant scope,
+authorization, execution limits, and audit logging.
 
 This repository is the Go implementation of that engine. Language/runtime
 integrations should be separate from the root module. For example, a Hibernate
@@ -24,12 +28,29 @@ dependencies here.
 ## Design Goals
 
 - Keep customer query text away from direct database execution.
+- Regenerate parameterized SQL from the validated AST, never pass user text
+  through.
 - Make unsupported syntax fail as a normal parse error.
 - Validate entities and fields against explicit allowlisted schemas.
 - Enforce read-only and field-level policy against the AST.
+- Serve trusted internal SQL (including mutations) from the same hardened engine.
 - Keep the root Go module dependency-light.
 - Put heavyweight authorization integrations in optional modules.
 - Keep non-Go runtime integrations outside this repository.
+
+## Capabilities
+
+- **Parser + AST** for a read-only SQL subset.
+- **Schema validation** against an allowlist of entities, fields, types, and
+  capabilities, with per-field [data classification](trust-modes.md#data-classification).
+- **Policy** checks for operations, limits, and query complexity.
+- **[SQL compiler](compiler.md)** — AST to parameterized SQLite / PostgreSQL /
+  MySQL, including JSON path extraction.
+- **[Config & trust modes](trust-modes.md)** — hardened untrusted and trusted
+  profiles with a one-step `Compile`.
+- **[Mutations](mutations.md)** — a trusted INSERT/UPDATE/DELETE builder.
+- **[Identifier lockdown](trust-modes.md#identifier-safety)** — safe-charset
+  enforcement for table and column names.
 
 ## Core Packages
 
@@ -41,22 +62,30 @@ dependencies here.
 
 ## Minimal Example
 
+The high-level `Config` runs parse → validate → policy → compile in one call:
+
 ```go
-q, err := guardsql.Parse(`SELECT id, name FROM roadmap_items WHERE status = "planned" LIMIT 25`)
+cfg := guardsql.NewUntrustedConfig(schema, guardsql.DialectPostgres)
+
+out, err := cfg.Compile(`SELECT id, name FROM roadmap_items WHERE status = "planned" LIMIT 25`)
 if err != nil {
     return err
 }
+rows, err := db.Query(out.SQL, out.Args...) // parameterized, dialect-specific
+```
 
+The lower-level primitives remain available for custom pipelines:
+
+```go
+q, err := guardsql.Parse(input)
+if err != nil {
+    return err
+}
 if err := guardsql.Validate(q, schema); err != nil {
     return err
 }
-
-issues := guardsql.CheckPolicy(q, guardsql.Policy{
-    AllowedOps: []guardsql.Operation{guardsql.OperationRead},
-    MaxDepth:   8,
-    MaxNodes:   80,
-})
-if len(issues) > 0 {
+if issues := guardsql.CheckPolicy(q, policy); len(issues) > 0 {
     return fmt.Errorf("query not allowed: %s", issues[0].Message)
 }
+out, err := guardsql.Compile(q, guardsql.CompileOptions{Dialect: guardsql.DialectPostgres, Schema: schema})
 ```

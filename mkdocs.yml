@@ -43,15 +43,21 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - Getting Started: getting-started.md
   - Query Language: query-language.md
   - Request Pipeline: request-pipeline.md
   - Schema Validation: schema-validation.md
+  - Schema from a Data Catalog: catalog-schema.md
   - Policy: policy.md
+  - SQL Compiler: compiler.md
+  - Config & Trust Modes: trust-modes.md
+  - Mutations: mutations.md
   - Security Hardening: security-hardening.md
   - Authorization: authorization.md
   - Backend Execution: backend-execution.md
   - Integrations: integrations.md
   - Releases:
+      - v0.3.0: releases/v0.3.0.md
       - v0.2.0: releases/v0.2.0.md
       - v0.1.0: releases/v0.1.0.md
   - Development: development.md

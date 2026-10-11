@@ -18,10 +18,26 @@ providers can use safely.
 It is useful for tests, local demos, small in-memory datasets, and reference
 behavior.
 
-## Backend Compilers
+## Built-in SQL Compiler
 
-Production systems should compile validated and policy-approved ASTs into their
-own backend calls:
+GuardSQL ships a compiler that transpiles a validated AST into parameterized
+SQL for SQLite, PostgreSQL, and MySQL/Dolt, including JSON path extraction. It
+is the recommended path for SQL backends and fully realizes the "never execute
+the original text" principle by regenerating SQL from the AST. See
+[SQL Compiler](compiler.md) and [Config & Trust Modes](trust-modes.md).
+
+```go
+out, err := guardsql.Compile(q, guardsql.CompileOptions{
+    Dialect: guardsql.DialectPostgres, Schema: schema, StrictIdentifiers: true,
+})
+rows, err := db.Query(out.SQL, out.Args...)
+```
+
+## Custom Backend Compilers
+
+The built-in compiler covers single-source read queries. For other targets, or
+for AST features it does not yet emit (joins, CTEs, nested sources), compile the
+validated and policy-approved AST into your own backend calls:
 
 - SQL with placeholders and separate arguments
 - Ent predicates
