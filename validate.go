@@ -79,14 +79,14 @@ func Validate(q *Query, schema Schema) error {
 	}
 	grouped := map[string]struct{}{}
 	for _, fieldName := range q.GroupBy {
-		field, ok := ent.Fields[fieldLookupName(fieldName, aliases)]
+		ref, ok := resolveField(ent, fieldName, aliases)
 		if !ok {
 			return fmt.Errorf("unknown group field %q", fieldName)
 		}
-		if !field.Sortable {
+		if !ref.Field.Sortable {
 			return fmt.Errorf("field %q is not groupable", fieldName)
 		}
-		grouped[fieldLookupName(fieldName, aliases)] = struct{}{}
+		grouped[ref.Key()] = struct{}{}
 	}
 	hasAggregate := queryHasAggregate(q)
 	for _, item := range q.Select {
@@ -102,15 +102,15 @@ func Validate(q *Query, schema Schema) error {
 			}
 			continue
 		}
-		field, ok := ent.Fields[fieldLookupName(item.Field, aliases)]
+		ref, ok := resolveField(ent, item.Field, aliases)
 		if !ok {
 			return fmt.Errorf("unknown select field %q", item.Field)
 		}
-		if !field.Selectable {
+		if !ref.Field.Selectable {
 			return fmt.Errorf("field %q is not selectable", item.Field)
 		}
 		if hasAggregate || len(q.GroupBy) > 0 {
-			if _, ok := grouped[fieldLookupName(item.Field, aliases)]; !ok {
+			if _, ok := grouped[ref.Key()]; !ok {
 				return fmt.Errorf("selected field %q must appear in GROUP BY", item.Field)
 			}
 		}
@@ -129,11 +129,11 @@ func Validate(q *Query, schema Schema) error {
 		if hasAggregate || len(q.GroupBy) > 0 {
 			orderEnt = outputEntity(q)
 		}
-		field, ok := orderEnt.Fields[fieldLookupName(order.Field, aliases)]
+		ref, ok := resolveField(orderEnt, order.Field, aliases)
 		if !ok {
 			return fmt.Errorf("unknown order field %q", order.Field)
 		}
-		if !field.Sortable {
+		if !ref.Field.Sortable {
 			return fmt.Errorf("field %q is not sortable", order.Field)
 		}
 	}
@@ -174,16 +174,17 @@ func validateAggregate(agg *AggregateExpr, ent Entity, aliases map[string]string
 		}
 		return nil
 	}
-	field, ok := ent.Fields[fieldLookupName(agg.Field, aliases)]
+	ref, ok := resolveField(ent, agg.Field, aliases)
 	if !ok {
 		return fmt.Errorf("unknown aggregate field %q", agg.Field)
 	}
-	if !field.Selectable {
+	if !ref.Field.Selectable {
 		return fmt.Errorf("field %q is not selectable", agg.Field)
 	}
 	switch agg.Func {
 	case AggSum, AggAvg:
-		if field.Type != FieldNumber {
+		// JSON path values are dynamically typed; the backend coerces them.
+		if !ref.IsJSONPath() && ref.Field.Type != FieldNumber {
 			return fmt.Errorf("%s requires a number field", agg.Func)
 		}
 	case AggCount, AggMin, AggMax:
@@ -232,11 +233,11 @@ func validateExpr(expr Expr, ent Entity, aliases map[string]string) error {
 	case *NotExpr:
 		return validateExpr(e.Expr, ent, aliases)
 	case *CompareExpr:
-		field, ok := ent.Fields[fieldLookupName(e.Field, aliases)]
+		ref, ok := resolveField(ent, e.Field, aliases)
 		if !ok {
 			return fmt.Errorf("unknown filter field %q", e.Field)
 		}
-		if !field.Filterable {
+		if !ref.Field.Filterable {
 			return fmt.Errorf("field %q is not filterable", e.Field)
 		}
 		if e.Op != OpIsNull && e.Op != OpNotNull && len(e.Values) == 0 {
@@ -246,7 +247,7 @@ func validateExpr(expr Expr, ent Entity, aliases map[string]string) error {
 			return fmt.Errorf("IN requires at least one value")
 		}
 		for _, value := range e.Values {
-			if err := validateValue(field, e.Op, value); err != nil {
+			if err := validateValue(ref, e.Op, value); err != nil {
 				return fmt.Errorf("field %q: %w", e.Field, err)
 			}
 		}
@@ -256,22 +257,16 @@ func validateExpr(expr Expr, ent Entity, aliases map[string]string) error {
 	}
 }
 
-func fieldLookupName(name string, aliases map[string]string) string {
-	name = strings.ToLower(strings.TrimSpace(name))
-	if idx := strings.LastIndex(name, "."); idx >= 0 {
-		if aliases != nil {
-			if _, ok := aliases[name[:idx]]; ok {
-				return name[idx+1:]
-			}
-		}
-	}
-	return name
-}
-
-func validateValue(field Field, op CompareOp, value Value) error {
+func validateValue(ref FieldRef, op CompareOp, value Value) error {
 	if value.Type == ValueNull {
 		return nil
 	}
+	// JSON path values are dynamically typed; the backend coerces them, so skip
+	// static value-type checks for extractions.
+	if ref.IsJSONPath() {
+		return nil
+	}
+	field := ref.Field
 	switch op {
 	case OpContains:
 		if field.Type != FieldString {
