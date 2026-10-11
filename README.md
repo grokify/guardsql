@@ -3,6 +3,7 @@
 [![Go CI][go-ci-svg]][go-ci-url]
 [![Go Lint][go-lint-svg]][go-lint-url]
 [![Go SAST][go-sast-svg]][go-sast-url]
+![Coverage][coverage-svg]
 [![Docs][docs-godoc-svg]][docs-godoc-url]
 [![Visualization][viz-svg]][viz-url]
 [![License][license-svg]][license-url]
@@ -13,6 +14,7 @@
  [go-lint-url]: https://github.com/grokify/guardsql/actions/workflows/go-lint.yaml
  [go-sast-svg]: https://github.com/grokify/guardsql/actions/workflows/go-sast-codeql.yaml/badge.svg?branch=main
  [go-sast-url]: https://github.com/grokify/guardsql/actions/workflows/go-sast-codeql.yaml
+ [coverage-svg]: https://img.shields.io/badge/coverage-77.4%25-yellowgreen
  [docs-godoc-svg]: https://pkg.go.dev/badge/github.com/grokify/guardsql
  [docs-godoc-url]: https://pkg.go.dev/github.com/grokify/guardsql
  [docs-mkdoc-svg]: https://img.shields.io/badge/Go-dev%20guide-blue.svg
