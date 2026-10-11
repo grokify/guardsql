@@ -43,22 +43,22 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Getting Started: getting-started.md
-  - Query Language: query-language.md
-  - Request Pipeline: request-pipeline.md
-  - Schema Validation: schema-validation.md
-  - Schema from a Data Catalog: catalog-schema.md
-  - Policy: policy.md
-  - SQL Compiler: compiler.md
-  - Config & Trust Modes: trust-modes.md
-  - Mutations: mutations.md
-  - Security Hardening: security-hardening.md
-  - Authorization: authorization.md
-  - Backend Execution: backend-execution.md
-  - Integrations: integrations.md
+  - Getting Started: guides/getting-started.md
+  - Query Language: guides/query-language.md
+  - Request Pipeline: guides/request-pipeline.md
+  - Schema Validation: guides/schema-validation.md
+  - Schema from a Data Catalog: guides/catalog-schema.md
+  - Policy: guides/policy.md
+  - SQL Compiler: guides/compiler.md
+  - Config & Trust Modes: guides/trust-modes.md
+  - Mutations: guides/mutations.md
+  - Security Hardening: guides/security-hardening.md
+  - Authorization: guides/authorization.md
+  - Backend Execution: guides/backend-execution.md
+  - Integrations: guides/integrations.md
   - Releases:
       - v0.3.0: releases/v0.3.0.md
       - v0.2.0: releases/v0.2.0.md
       - v0.1.0: releases/v0.1.0.md
-  - Development: development.md
+  - Development: guides/development.md
   - API Reference: https://pkg.go.dev/github.com/grokify/guardsql

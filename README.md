@@ -35,9 +35,9 @@ query text -> parse -> validate -> policy -> compile -> parameterized SQL + args
 ```
 
 For an end-to-end walkthrough (schema, untrusted analytics with row scope, and
-trusted mutations), see [Getting Started](docs/getting-started.md); for why the
+trusted mutations), see [Getting Started](docs/guides/getting-started.md); for why the
 model is secure and what the host must still enforce, see
-[Security Hardening](docs/security-hardening.md).
+[Security Hardening](docs/guides/security-hardening.md).
 
 ## Scope
 
@@ -96,7 +96,7 @@ FROM events GROUP BY payload.finding_info.title
 -- SQLite: json_extract("payload", ?) ...  args: ["$.finding_info.title", ...]
 ```
 
-See the [SQL Compiler](docs/compiler.md) docs.
+See the [SQL Compiler](docs/guides/compiler.md) docs.
 
 ## Config & Trust Modes
 
@@ -117,7 +117,7 @@ Each schema field carries a data classification — `ClassPublic` (default),
 `ClassPII`, `ClassInternal`, or `ClassSecret`. Classified columns are stripped
 from the effective schema unless `AllowPII` / `AllowInternal` / `AllowSecret`
 are set, so an untrusted query that references one fails as an unknown field.
-See [Config & Trust Modes](docs/trust-modes.md).
+See [Config & Trust Modes](docs/guides/trust-modes.md).
 
 The recommended source of classification is a
 [`datacatalog`](https://github.com/grokify/datacatalog) catalog:
@@ -128,14 +128,14 @@ cfg := guardsql.NewUntrustedConfig(schema, guardsql.DialectPostgres)
 ```
 
 `Field.Class` remains settable by hand. See
-[Schema from a Data Catalog](docs/catalog-schema.md).
+[Schema from a Data Catalog](docs/guides/catalog-schema.md).
 
 For tenant/ownership isolation (IDOR defense), `Config.RowScope` injects a
 mandatory, app-supplied predicate as a top-level `AND` on every compiled
 SELECT/UPDATE/DELETE and is stamped onto INSERTs, so no user `WHERE` can widen
 scope and scope columns cannot be reassigned; `RequireRowScope` makes unscoped
 access fail closed. See
-[Row Scope](docs/trust-modes.md#row-scope-tenant--idor-isolation).
+[Row Scope](docs/guides/trust-modes.md#row-scope-tenant--idor-isolation).
 
 ## Identifier Safety
 
@@ -161,7 +161,7 @@ guardsql.Update("users").
 // UPDATE "users" SET "status" = $1 WHERE "id" = $2   args: ["active", 42]
 ```
 
-See [Mutations](docs/mutations.md).
+See [Mutations](docs/guides/mutations.md).
 
 ## Formatting
 
@@ -346,7 +346,7 @@ GuardSQL entities and fields map to concrete product resources such as
 
 ## Documentation
 
-This repo includes a MkDocs site in `docs/`.
+This repo includes a MkDocs site in `docs/` (user guides in `docs/guides/`, release notes in `docs/releases/`).
 
 ```bash
 mkdocs serve

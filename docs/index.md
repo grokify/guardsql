@@ -42,14 +42,14 @@ dependencies here.
 
 - **Parser + AST** for a read-only SQL subset.
 - **Schema validation** against an allowlist of entities, fields, types, and
-  capabilities, with per-field [data classification](trust-modes.md#data-classification).
+  capabilities, with per-field [data classification](guides/trust-modes.md#data-classification).
 - **Policy** checks for operations, limits, and query complexity.
-- **[SQL compiler](compiler.md)** — AST to parameterized SQLite / PostgreSQL /
+- **[SQL compiler](guides/compiler.md)** — AST to parameterized SQLite / PostgreSQL /
   MySQL, including JSON path extraction.
-- **[Config & trust modes](trust-modes.md)** — hardened untrusted and trusted
+- **[Config & trust modes](guides/trust-modes.md)** — hardened untrusted and trusted
   profiles with a one-step `Compile`.
-- **[Mutations](mutations.md)** — a trusted INSERT/UPDATE/DELETE builder.
-- **[Identifier lockdown](trust-modes.md#identifier-safety)** — safe-charset
+- **[Mutations](guides/mutations.md)** — a trusted INSERT/UPDATE/DELETE builder.
+- **[Identifier lockdown](guides/trust-modes.md#identifier-safety)** — safe-charset
   enforcement for table and column names.
 
 ## Core Packages

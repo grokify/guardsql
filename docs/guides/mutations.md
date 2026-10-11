@@ -74,7 +74,7 @@ Build `WHERE` clauses with typed helpers; every value becomes a bind parameter.
   `RowScope` into the `WHERE`; `INSERT` stamps the scope's equality terms onto
   the new row. Columns referenced by the scope cannot be assigned, so a row
   cannot be written into or moved out of the caller's scope. See
-  [Row Scope](trust-modes.md#row-scope-tenant--idor-isolation).
+  [Row Scope](trust-modes.md#row-scope-tenant-idor-isolation).
 - **Schema-checked identifiers.** Unknown columns are rejected; assignment
   targets must be plain columns (not JSON paths); identifier lockdown applies.
 
