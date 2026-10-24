@@ -10,6 +10,33 @@
   ],
   "releases": [
     {
+      "version": "v0.4.0",
+      "date": "2026-10-23",
+      "highlights": [
+        {
+          "description": "Policies compiled from authorization decisions use strict allowlists, so a decision that grants nothing denies every query"
+        }
+      ],
+      "security": [
+        {
+          "description": "`authz.PolicyFromDecision` turned a decision that allowed no entity into a policy with empty allowlists, which `CheckPolicy` and `CheckAnalysisPolicy` read as unrestricted; the policy now uses strict allowlists, so a decision that grants nothing denies every query"
+        },
+        {
+          "description": "`CheckPolicy` checked only the `FROM` entity against `AllowedEntities`, not joined entities"
+        }
+      ],
+      "added": [
+        {
+          "description": "`Policy.StrictAllowlists` makes `AllowedEntities` and `Fields` strict allowlists even when empty"
+        }
+      ],
+      "documentation": [
+        {
+          "description": "Authorization guide points to SystemForge's `authzguardsql` adapter"
+        }
+      ]
+    },
+    {
       "version": "v0.3.0",
       "date": "2026-10-11",
       "commit": "3bacf2a",
@@ -178,25 +205,5 @@
         }
       ]
     }
-  ],
-  "unreleased": {
-    "security": [
-      {
-        "description": "`authz.PolicyFromDecision` turned a decision that allowed no entity into a policy with empty allowlists, which `CheckPolicy` and `CheckAnalysisPolicy` read as unrestricted; the policy now uses strict allowlists, so a decision that grants nothing denies every query"
-      },
-      {
-        "description": "`CheckPolicy` checked only the `FROM` entity against `AllowedEntities`, not joined entities"
-      }
-    ],
-    "added": [
-      {
-        "description": "`Policy.StrictAllowlists` makes `AllowedEntities` and `Fields` strict allowlists even when empty"
-      }
-    ],
-    "documentation": [
-      {
-        "description": "Authorization guide points to SystemForge's `authzguardsql` adapter"
-      }
-    ]
-  }
+  ]
 }
