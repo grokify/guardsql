@@ -59,6 +59,11 @@ func CheckPolicy(q *Query, policy Policy) []PolicyIssue {
 	if len(policy.AllowedEntities) > 0 && !stringAllowed(q.From, policy.AllowedEntities) {
 		issues = append(issues, PolicyIssue{Message: fmt.Sprintf("entity %q is not allowed", q.From)})
 	}
+	for _, join := range q.Joins {
+		if join.Entity != "" && len(policy.AllowedEntities) > 0 && !stringAllowed(join.Entity, policy.AllowedEntities) {
+			issues = append(issues, PolicyIssue{Message: fmt.Sprintf("entity %q is not allowed", join.Entity)})
+		}
+	}
 	issues = append(issues, checkStructuralPolicy(q, policy)...)
 	if len(policy.Fields) > 0 {
 		issues = append(issues, checkFieldPolicy(q, policy)...)
