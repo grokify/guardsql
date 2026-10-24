@@ -27,18 +27,25 @@ policy := authz.PolicyFromDecision(decision)
 External engines should produce decisions from trusted application context, not
 from user-authored query text.
 
+A decision's allowlists are strict: `PolicyFromDecision` sets
+`Policy.StrictAllowlists`, so a decision with no `AllowedEntities` denies every
+query, and an allowed entity without a `Fields` entry exposes no fields. An
+authorization result that grants nothing therefore denies rather than leaving
+the query unrestricted.
+
 ## SystemForge and SpiceDB
 
-SystemForge integration lives in the optional nested module:
+SystemForge's adapter lives in SystemForge, which imports GuardSQL (GuardSQL
+never imports SystemForge):
 
 ```bash
-go get github.com/grokify/guardsql/authzsystemforge
+go get github.com/plexusone/systemforge/authzguardsql
 ```
 
 Example:
 
 ```go
-policy, err := authzsystemforge.PolicyBuilder{
+policy, err := authzguardsql.PolicyBuilder{
     Authorizer: provider, // systemforge/authz.Authorizer
     Principal:  authz.NewUserPrincipal(userID),
     Schema:     schema,

@@ -37,6 +37,17 @@ policy := guardsql.Policy{
 }
 ```
 
+## Empty Allowlists
+
+By default an empty `AllowedEntities` or `Fields` adds no restriction, so a zero
+`Policy` (for example `Config.Policy` left unset) applies only the limits that
+are set. Set `StrictAllowlists` when the policy is an authorization result:
+`AllowedEntities` and `Fields` then become strict allowlists even when empty, so
+an unlisted entity is refused and an entity without a `Fields` entry has no
+usable fields. `authz.PolicyFromDecision` always sets it.
+
+`AllowedEntities` applies to joined entities as well as the `FROM` entity.
+
 For a generated deny-by-default starting point:
 
 ```go
