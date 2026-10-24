@@ -16,7 +16,7 @@
         <link rel="prev" href="../security-hardening/">
       
       
-        <link rel="next" href="../../releases/v0.3.0/">
+        <link rel="next" href="../../releases/v0.4.0/">
       
       
         
@@ -918,6 +918,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.4.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.4.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.3.0/" class="md-nav__link">
         
   
@@ -1230,12 +1258,18 @@ principals and may compile those decisions into <code>guardsql.Policy</code>.</p
 </code></pre></div>
 <p>External engines should produce decisions from trusted application context, not
 from user-authored query text.</p>
+<p>A decision's allowlists are strict: <code>PolicyFromDecision</code> sets
+<code>Policy.StrictAllowlists</code>, so a decision with no <code>AllowedEntities</code> denies every
+query, and an allowed entity without a <code>Fields</code> entry exposes no fields. An
+authorization result that grants nothing therefore denies rather than leaving
+the query unrestricted.</p>
 <h2 id="systemforge-and-spicedb">SystemForge and SpiceDB<a class="headerlink" href="#systemforge-and-spicedb" title="Permanent link">&para;</a></h2>
-<p>SystemForge integration lives in the optional nested module:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>go<span class="w"> </span>get<span class="w"> </span>github.com/grokify/guardsql/authzsystemforge
+<p>SystemForge's adapter lives in SystemForge, which imports GuardSQL (GuardSQL
+never imports SystemForge):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>go<span class="w"> </span>get<span class="w"> </span>github.com/plexusone/systemforge/authzguardsql
 </code></pre></div>
 <p>Example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nx">policy</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">authzsystemforge</span><span class="p">.</span><span class="nx">PolicyBuilder</span><span class="p">{</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nx">policy</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">authzguardsql</span><span class="p">.</span><span class="nx">PolicyBuilder</span><span class="p">{</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nx">Authorizer</span><span class="p">:</span><span class="w"> </span><span class="nx">provider</span><span class="p">,</span><span class="w"> </span><span class="c1">// systemforge/authz.Authorizer</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nx">Principal</span><span class="p">:</span><span class="w">  </span><span class="nx">authz</span><span class="p">.</span><span class="nx">NewUserPrincipal</span><span class="p">(</span><span class="nx">userID</span><span class="p">),</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nx">Schema</span><span class="p">:</span><span class="w">     </span><span class="nx">schema</span><span class="p">,</span>

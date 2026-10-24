@@ -2,74 +2,78 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://grokify.github.io/guardsql/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/contributing/development/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/guides/authorization/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/guides/backend-execution/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/guides/catalog-schema/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/guides/compiler/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/guides/getting-started/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/guides/integrations/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/guides/mutations/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/guides/policy/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/guides/query-language/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/guides/request-pipeline/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/guides/schema-validation/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/guides/security-hardening/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/guides/trust-modes/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/releases/v0.1.0/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/releases/v0.2.0/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
     </url>
     <url>
          <loc>https://grokify.github.io/guardsql/releases/v0.3.0/</loc>
-         <lastmod>2026-10-11</lastmod>
+         <lastmod>2026-10-24</lastmod>
+    </url>
+    <url>
+         <loc>https://grokify.github.io/guardsql/releases/v0.4.0/</loc>
+         <lastmod>2026-10-24</lastmod>
     </url>
 </urlset>

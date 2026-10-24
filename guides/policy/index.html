@@ -552,6 +552,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#empty-allowlists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Empty Allowlists
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#read-only-analytics" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -962,6 +973,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.4.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.4.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.3.0/" class="md-nav__link">
         
   
@@ -1200,6 +1239,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#empty-allowlists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Empty Allowlists
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#read-only-analytics" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1329,6 +1379,14 @@ enforcing the current AST-level allowlist.</p>
 <a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">    </span><span class="nx">AllowNestedSources</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="p">}</span>
 </code></pre></div>
+<h2 id="empty-allowlists">Empty Allowlists<a class="headerlink" href="#empty-allowlists" title="Permanent link">&para;</a></h2>
+<p>By default an empty <code>AllowedEntities</code> or <code>Fields</code> adds no restriction, so a zero
+<code>Policy</code> (for example <code>Config.Policy</code> left unset) applies only the limits that
+are set. Set <code>StrictAllowlists</code> when the policy is an authorization result:
+<code>AllowedEntities</code> and <code>Fields</code> then become strict allowlists even when empty, so
+an unlisted entity is refused and an entity without a <code>Fields</code> entry has no
+usable fields. <code>authz.PolicyFromDecision</code> always sets it.</p>
+<p><code>AllowedEntities</code> applies to joined entities as well as the <code>FROM</code> entity.</p>
 <p>For a generated deny-by-default starting point:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nx">policy</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">guardsql</span><span class="p">.</span><span class="nx">SafeAnalyticsPolicy</span><span class="p">(</span><span class="nx">schema</span><span class="p">)</span>
 </code></pre></div>

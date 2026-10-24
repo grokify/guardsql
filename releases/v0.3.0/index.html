@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://grokify.github.io/guardsql/releases/v0.3.0/">
       
       
-        <link rel="prev" href="../../guides/authorization/">
+        <link rel="prev" href="../v0.4.0/">
       
       
         <link rel="next" href="../v0.2.0/">
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#v030" class="md-skip">
+        <a href="#guardsql-v030" class="md-skip">
           Skip to content
         </a>
       
@@ -824,6 +824,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../v0.4.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.4.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1274,7 +1302,8 @@
   
 
 
-<h1 id="v030">v0.3.0<a class="headerlink" href="#v030" title="Permanent link">&para;</a></h1>
+<h1 id="guardsql-v030">GuardSQL v0.3.0<a class="headerlink" href="#guardsql-v030" title="Permanent link">&para;</a></h1>
+<p>Released: 2026-10-11</p>
 <p>This release turns GuardSQL from a parse-and-validate gate into a full
 <strong>transpiler</strong>: untrusted SQL in, trusted parameterized SQL out. It adds a
 built-in SQL compiler, a high-level <code>Config</code> with trust profiles, data
@@ -1359,6 +1388,14 @@ classification, identifier lockdown, and a trusted mutation builder.</p>
   <code>Schema</code>/<code>Entity</code>/<code>Field</code> gain JSON tags. <code>Writable</code> is deny-by-default but
   only affects the new mutation builder, so there are no breaking changes to the
   read pipeline.</li>
+<li><strong>Go 1.25 is now required</strong> (it was 1.23). The new optional dependency path
+  <code>github.com/grokify/datacatalog</code>, used by <code>FromCatalog</code>, requires it, and the
+  module now lists it in <code>go.mod</code>.</li>
+<li><code>Config.AllowInternal</code> is on in <code>NewTrustedConfig</code> and off in
+  <code>NewUntrustedConfig</code>; a field of class <code>ClassInternal</code> is hidden from
+  untrusted queries and reads as an unknown field.</li>
+<li>The browser-side package in <code>ts/</code> is not part of this release's feature set:
+  it does not yet have the compiler, <code>Config</code>, data classes or <code>FromCatalog</code>.</li>
 </ul>
 
 
