@@ -8,9 +8,18 @@ import (
 // Policy defines AST-level safety rules for a GuardSQL query. It is intended
 // for structural query controls; application authorization systems can compile
 // their decisions into this policy shape before execution.
+//
+// By default an empty AllowedEntities or Fields adds no restriction, so a
+// zero Policy only applies the checks that are set. An authorization result
+// must not be read that way: set StrictAllowlists (authz.PolicyFromDecision
+// does) so that nothing allowed means nothing is allowed.
 type Policy struct {
-	AllowedOps         []Operation
-	AllowedEntities    []string
+	AllowedOps      []Operation
+	AllowedEntities []string
+	// StrictAllowlists makes AllowedEntities and Fields strict allowlists
+	// even when empty: an entity not in AllowedEntities is refused, and an
+	// entity with no entry in Fields has no usable fields.
+	StrictAllowlists   bool
 	AllowedJoinTypes   []JoinType
 	AllowedFunctions   []AggregateFunc
 	Fields             map[string]map[string]FieldPolicy
@@ -56,16 +65,16 @@ func CheckPolicy(q *Query, policy Policy) []PolicyIssue {
 	if len(policy.AllowedOps) > 0 && !operationAllowed(q.Operation, policy.AllowedOps) {
 		issues = append(issues, PolicyIssue{Message: fmt.Sprintf("operation %q is not allowed", q.Operation)})
 	}
-	if len(policy.AllowedEntities) > 0 && !stringAllowed(q.From, policy.AllowedEntities) {
+	if q.From != "" && !entityAllowed(q.From, policy) {
 		issues = append(issues, PolicyIssue{Message: fmt.Sprintf("entity %q is not allowed", q.From)})
 	}
 	for _, join := range q.Joins {
-		if join.Entity != "" && len(policy.AllowedEntities) > 0 && !stringAllowed(join.Entity, policy.AllowedEntities) {
+		if join.Entity != "" && !entityAllowed(join.Entity, policy) {
 			issues = append(issues, PolicyIssue{Message: fmt.Sprintf("entity %q is not allowed", join.Entity)})
 		}
 	}
 	issues = append(issues, checkStructuralPolicy(q, policy)...)
-	if len(policy.Fields) > 0 {
+	if policy.StrictAllowlists || len(policy.Fields) > 0 {
 		issues = append(issues, checkFieldPolicy(q, policy)...)
 	}
 	if policy.RequireLimit && q.Limit < 0 {
@@ -110,7 +119,7 @@ func CheckAnalysisPolicy(analysis Analysis, policy Policy) []PolicyIssue {
 		}
 	}
 	for _, entity := range reqs.Entities {
-		if len(policy.AllowedEntities) > 0 && !stringAllowed(entity, policy.AllowedEntities) {
+		if !entityAllowed(entity, policy) {
 			issues = append(issues, PolicyIssue{Message: fmt.Sprintf("entity %q is not allowed", entity)})
 		}
 	}
@@ -124,7 +133,7 @@ func CheckAnalysisPolicy(analysis Analysis, policy Policy) []PolicyIssue {
 			issues = append(issues, PolicyIssue{Message: fmt.Sprintf("%s join is not allowed", join.Type)})
 		}
 	}
-	if len(policy.Fields) > 0 {
+	if policy.StrictAllowlists || len(policy.Fields) > 0 {
 		for _, req := range reqs.Fields {
 			fieldPolicy, ok := fieldPolicyFor(policy, req.Entity, req.Field)
 			if !ok || !fieldUsageAllowed(req, fieldPolicy) {
@@ -187,7 +196,7 @@ func SafeAnalyticsPolicy(schema Schema) Policy {
 
 func checkFieldPolicy(q *Query, policy Policy) []PolicyIssue {
 	fieldPolicies, ok := policy.Fields[strings.ToLower(q.From)]
-	if !ok {
+	if !ok && !policy.StrictAllowlists {
 		return nil
 	}
 	var issues []PolicyIssue
@@ -304,6 +313,16 @@ func operationAllowed(op Operation, allowed []Operation) bool {
 		}
 	}
 	return false
+}
+
+// entityAllowed reports whether policy admits entity: always when
+// AllowedEntities is empty and the policy is not strict, otherwise only when
+// listed.
+func entityAllowed(entity string, policy Policy) bool {
+	if len(policy.AllowedEntities) == 0 && !policy.StrictAllowlists {
+		return true
+	}
+	return stringAllowed(entity, policy.AllowedEntities)
 }
 
 func stringAllowed(value string, allowed []string) bool {
